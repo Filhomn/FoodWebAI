@@ -1,6 +1,6 @@
 # 
 
-<center>![](IMG_1465.jpeg)</center>
+![](IMG_1465.jpeg)
 
 FoodWebAI is a user-friendly web application designed to fill gaps in species records with additional metadata and create food webs using only taxa lists. By combining limited ecological knowledge with AI capabilities, FoodWebAI offers an innovative solution to the complexities of food web creation.
 
