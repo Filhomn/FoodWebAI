@@ -5,30 +5,30 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  observeEvent(input$help1,{
+  observeEvent(input$help1, {
     toggle('help1_panel')
   })
-  observeEvent(input$help1_1,{
+  observeEvent(input$help1_1, {
     toggle('help1_panel')
   })
 
-  observeEvent(input$help2,{
+  observeEvent(input$help2, {
     toggle('help2_panel')
   })
 
-  observeEvent(input$help3,{
+  observeEvent(input$help3, {
     toggle('help2_panel')
   })
-  observeEvent(input$help4,{
-    toggle('help2_panel')
-  })
-
-  observeEvent(input$help2_2,{
+  observeEvent(input$help4, {
     toggle('help2_panel')
   })
 
+  observeEvent(input$help2_2, {
+    toggle('help2_panel')
+  })
 
-  observeEvent(input$close_1,{
+
+  observeEvent(input$close_1, {
     hide('controls31')
   })
 
@@ -55,7 +55,7 @@ app_server <- function(input, output, session) {
     }
   )
 
-  observeEvent(input$ch21,{
+  observeEvent(input$ch21, {
     toggle('controls31')
 
   })
@@ -80,14 +80,38 @@ app_server <- function(input, output, session) {
 
     #cheaper model
     classify_gen <- function(text) {
-      prompt <- paste("Please match the following with its predator:\n\n", paste(gen_data$species, collapse = ", "),  "\n\nHere is the text to classify:\n\n", text, "\n\nPredator:")
-      response <- gpt3_single_completion(prompt_input = prompt, temperature = 0.1, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+      prompt <- paste(
+        "Please match the following with its predator:\n\n",
+        paste(gen_data$species, collapse = ", "),
+        "\n\nHere is the text to classify:\n\n",
+        text,
+        "\n\nPredator:"
+      )
+      response <- gpt3_single_completion(
+        prompt_input = prompt,
+        temperature = 0.1,
+        max_tokens = 3,
+        n = 1,
+        model = "gpt-3.5-turbo-instruct"
+      )
       category <- response[[1]]$gpt3
     }
 
     classify_gen3 <- function(text) {
-      prompt <- paste("Please match the following with its prey:\n\n", paste(gen_data$species, collapse = ", "),  "\n\nHere is the text to classify:\n\n", text, "\n\nPrey:")
-      response <- gpt3_single_completion(prompt_input = prompt, temperature = 0.1, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+      prompt <- paste(
+        "Please match the following with its prey:\n\n",
+        paste(gen_data$species, collapse = ", "),
+        "\n\nHere is the text to classify:\n\n",
+        text,
+        "\n\nPrey:"
+      )
+      response <- gpt3_single_completion(
+        prompt_input = prompt,
+        temperature = 0.1,
+        max_tokens = 3,
+        n = 1,
+        model = "gpt-3.5-turbo-instruct"
+      )
       category2 <- response[[1]]$gpt3
     }
 
@@ -99,8 +123,20 @@ app_server <- function(input, output, session) {
     #  }
     #new with gpt3-turbo
     classify_gen2 <- function(text) {
-      prompt <- paste("Classify the species as 1 (autotroph), 2 (herbivore), 3 (carnivores) and 4 (top predators)\n\n", paste(gen_data$species, collapse = ", "),  "\n\nHere is the text to classify:\n\n", text, "\n\nTrophic Position:")
-      response <- gpt3_single_completion(prompt_input = prompt, temperature = 0.1, max_tokens = 2, n = 1,model = "gpt-3.5-turbo-instruct")
+      prompt <- paste(
+        "Classify the species as 1 (autotroph), 2 (herbivore), 3 (carnivores) and 4 (top predators)\n\n",
+        paste(gen_data$species, collapse = ", "),
+        "\n\nHere is the text to classify:\n\n",
+        text,
+        "\n\nTrophic Position:"
+      )
+      response <- gpt3_single_completion(
+        prompt_input = prompt,
+        temperature = 0.1,
+        max_tokens = 2,
+        n = 1,
+        model = "gpt-3.5-turbo-instruct"
+      )
       t_level <- response[[1]]$gpt3
     }
 
@@ -116,26 +152,27 @@ app_server <- function(input, output, session) {
     #  }
 
 
-    gw= gen_data
-    gw$category <- sapply(gw$species, classify_gen)%>% tolower()
-    gw$category2 <- sapply(gw$species, classify_gen3)%>% tolower()
-    gw=gw%>% gather("a","category",2:3)
+    gw = gen_data
+    gw$category <- sapply(gw$species, classify_gen) %>% tolower()
+    gw$category2 <- sapply(gw$species, classify_gen3) %>% tolower()
+    gw = gw %>% gather("a", "category", 2:3)
     gw$species2 <- ifelse(gw$a == "category", gw$species, gw$category)
     gw$category2 <- ifelse(gw$a == "category", gw$category, gw$species)
     gw$species = gw$species2
     gw$category = gw$category2
-    gw$category=trimws(gw$category)
-    gw$species=trimws(gw$species)
+    gw$category = trimws(gw$category)
+    gw$species = trimws(gw$species)
 
     standardize_word <- function(word) {
-      target_words <- c('none',gen_data$species)
+      target_words <- c('none', gen_data$species)
       distances <- stringdistmatrix(word, target_words, method = 'jw')
 
       closest_match_index <- which.min(distances)
       closest_match_distance <- distances[closest_match_index]
 
       other_distances <- distances[-closest_match_index]
-      if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+      if (closest_match_distance < 10 &&
+          all(closest_match_distance < other_distances + 3)) {
         return(target_words[closest_match_index])
       } else {
         return(word)
@@ -148,8 +185,8 @@ app_server <- function(input, output, session) {
     gw = gw %>% filter(category != "none")
 
     gw$weight = rep(1, length(gw$species))
-    gw2= data.frame(name=unique(c(gw$species, gw$category)))
-    gw2$name=trimws(gw2$name)
+    gw2 = data.frame(name = unique(c(gw$species, gw$category)))
+    gw2$name = trimws(gw2$name)
     gw2$t_level <- trimws(sapply(gw2$name, classify_gen2))
     gw2$size = rep(20, length(gw2$name))
     gw2$value = rep(1, length(gw2$name))
@@ -160,31 +197,31 @@ app_server <- function(input, output, session) {
       to = gw$category,
       weight = gw$weight
     ))
-    table_gen_2 <- reactiveVal(data.frame(
-      name = gw2$name,
-      value = gw2$value,
-      size = gw2$size,
-      t_level = gw2$t_level
-    ))
+    table_gen_2 <- reactiveVal(
+      data.frame(
+        name = gw2$name,
+        value = gw2$value,
+        size = gw2$size,
+        t_level = gw2$t_level
+      )
+    )
 
 
 
     output$my_chart3 <- renderEcharts4r({
       les <- list(nodes = table_gen_2(), edges = table_gen_1())
       les$nodes$t_level = as.numeric(les$nodes$t_level)
-      les$nodes = les$nodes%>% na.exclude()
+      les$nodes = les$nodes %>% na.exclude()
 
       a <- e_charts() |>
         e_graph(
           emphasis = list(focus = 'adjacency', label = list(show = TRUE)),
           roam = TRUE,
           zoom = input$ch20_1,
-
+          scaleLimit = list(min = 0.5, max = 4),
+          nodeScaleRatio = 0.35,
           right = '35%',
-          lineStyle = list(
-            color = "source",
-            curveness = 0.310
-          ),
+          lineStyle = list(color = "source", curveness = 0.310),
           draggable = FALSE
         ) |>
         e_graph_nodes(
@@ -201,12 +238,10 @@ app_server <- function(input, output, session) {
           target = to,
           value = weight
         ) |>
-        e_tooltip()|>
-        e_theme(name= input$ch8_1)|>
+        e_tooltip() |>
+        e_theme(name = input$ch8_1) |>
         e_toolbox() |>
-        e_toolbox_feature(
-          feature = c("saveAsImage")
-        )
+        e_toolbox_feature(feature = c("saveAsImage"))
 
 
       les$nodes$t_level = as.numeric(les$nodes$t_level)
@@ -245,10 +280,17 @@ app_server <- function(input, output, session) {
       }
       a$x$opts$series[[1]]$layout <- input$ch7_1
       a$x$opts$series[[1]]$draggable <- TRUE
-      a$x$opts$series[[1]]$label <- list(show = TRUE, fontSize = input$fontsize3, position = "bottom",borderColor = 'transparent', borderWidth =0)
+      a$x$opts$series[[1]]$label <- list(
+        show = TRUE,
+        fontSize = input$fontsize3,
+        position = "bottom",
+        borderColor = 'transparent',
+        borderWidth = 0
+      )
       a$x$opts$series[[1]]$itemStyle <- list(borderWidth = 1, borderColor = 'black')
       a$x$opts$legend <- list(show = TRUE)
-      a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth =0)
+      a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth =
+                                  0)
 
       for (i in 1:length(les$nodes$name)) {
         a$x$opts$series[[1]]$data[[i]]$symbolSize = as.numeric(a$x$opts$series[[1]]$data[[i]]$symbolSize) * input$ch10_1
@@ -265,7 +307,13 @@ app_server <- function(input, output, session) {
     })
 
     output$editableTable6 <- renderRHandsontable({
-      rhandsontable(table_gen_1(), stretchH = "all", rowHeaders = NULL, width = "100%", allowRowAdd = TRUE)
+      rhandsontable(
+        table_gen_1(),
+        stretchH = "all",
+        rowHeaders = NULL,
+        width = "100%",
+        allowRowAdd = TRUE
+      )
     })
 
     observeEvent(input$editableTable5, {
@@ -276,7 +324,56 @@ app_server <- function(input, output, session) {
       table_gen_1(hot_to_r(input$editableTable6))
     })
 
+    ff <- reactiveVal({
+      rtr = table_gen_1()
+      species <- unique(c(rtr$from, rtr$to))
+
+      # Initialize the adjacency matrix with zeros
+      adj_matrix <- matrix(0, nrow = length(species), ncol = length(species),
+                           dimnames = list(species, species))
+
+      # Fill the adjacency matrix with 1s where there is a connection
+      for(i in 1:nrow(table_gen_1())) {
+        adj_matrix[table_gen_1()$from[i], table_gen_1()$to[i]] <- 1
+      }
+      adj_matrix
+
+    })
+
+
+    output$dwntable1 <- downloadHandler(
+      filename = function() {
+        paste('csv-files-', Sys.Date(), '.zip', sep = '')
+      },
+      content = function(zipfile) {
+        # Create a temporary directory to store the CSV files
+        tmpdir <- tempdir()
+        setwd(tmpdir)
+
+        # Create some example CSV data frames
+        df1 <- table_gen_1()
+        df2 <- table_gen_2()
+        df3 <- ff()
+
+
+
+        Sys.sleep(3)
+
+
+        # Write the data frames to CSV files
+        write.csv(df2, file = "basic_estimates.csv", row.names = FALSE)
+        write.csv(df1, file = "consumption.csv", row.names = FALSE)
+        write.csv(df3, file = "matrix.csv", row.names = TRUE)
+        # Zip the CSV files
+        zip(zipfile,
+            files = c("matrix.csv","basic_estimates.csv", "consumption.csv"))
+      },
+      contentType = "application/zip"
+    )
+
+
   })
+
 
 
 
@@ -295,20 +392,32 @@ app_server <- function(input, output, session) {
 
   table_data2 <- reactiveVal(data.frame(
     from_species = c('A', 'B', 'C', 'A'),
-    to_species = c('B', 'C', 'A','C'),
-    link_weight = c(1.3, 3.3, 5,4)
+    to_species = c('B', 'C', 'A', 'C'),
+    link_weight = c(1.3, 3.3, 5, 4)
   ))
 
   # Render the editable tables
 
   output$editableTable1 <- renderRHandsontable({
-    rhandsontable(table_data1(), stretchH = "all", rowHeaders = NULL, width = "100%", allowRowAdd = TRUE)
+    rhandsontable(
+      table_data1(),
+      stretchH = "all",
+      rowHeaders = NULL,
+      width = "100%",
+      allowRowAdd = TRUE
+    )
 
 
   })
 
   output$editableTable2 <- renderRHandsontable({
-    rhandsontable(table_data2(), stretchH = "all", rowHeaders = NULL, width = "100%", allowRowAdd = TRUE)
+    rhandsontable(
+      table_data2(),
+      stretchH = "all",
+      rowHeaders = NULL,
+      width = "100%",
+      allowRowAdd = TRUE
+    )
   })
 
 
@@ -324,13 +433,21 @@ app_server <- function(input, output, session) {
   })
 
   observeEvent(input$addRowBtn1, {
-    new_row1 <- data.frame(name_species = '', trophic_level = 0, biomass = 0)
+    new_row1 <- data.frame(
+      name_species = '',
+      trophic_level = 0,
+      biomass = 0
+    )
     updated_table1 <- rbind(table_data1(), new_row1)
     table_data1(updated_table1)
   })
 
   observeEvent(input$addRowBtn2, {
-    new_row2 <- data.frame(from_species = "", to_species = "", link_weight = 0)
+    new_row2 <- data.frame(
+      from_species = "",
+      to_species = "",
+      link_weight = 0
+    )
     updated_table2 <- rbind(table_data2(), new_row2)
     table_data2(updated_table2)
   })
@@ -338,8 +455,17 @@ app_server <- function(input, output, session) {
   # Create a reactive context to access 'table_data1' and 'table_data2' within the observer
   observe({
     les <- list(
-      nodes = data.frame(name = table_data1()$name_species, value = table_data1()$biomass, trophic_level = table_data1()$trophic_level, group=floor(table_data1()$trophic_level)),
-      edges = data.frame(from = table_data2()$from_species, to = table_data2()$to_species, weight = table_data2()$link_weight)
+      nodes = data.frame(
+        name = table_data1()$name_species,
+        value = table_data1()$biomass,
+        trophic_level = table_data1()$trophic_level,
+        group = floor(table_data1()$trophic_level)
+      ),
+      edges = data.frame(
+        from = table_data2()$from_species,
+        to = table_data2()$to_species,
+        weight = table_data2()$link_weight
+      )
     )
     les$nodes$symbol = rep(input$ch9, length(les$nodes$name))
     output$my_chart2 <- renderEcharts4r({
@@ -353,15 +479,13 @@ app_server <- function(input, output, session) {
           zoom = input$ch20,
 
           right = '35%',
-          lineStyle = list(
-            color = "source",
-            curveness = 0.310
-          ),
+          lineStyle = list(color = "source", curveness = 0.310),
           draggable = FALSE
         ) |>
         e_graph_nodes(
           nodes = les$nodes,
-          name = "name", # Column name for the node names
+          name = "name",
+          # Column name for the node names
           value = "value",
           size = 'size',
           category = group,
@@ -374,12 +498,10 @@ app_server <- function(input, output, session) {
           target = to,
           value = weight
         ) |>
-        e_tooltip()|>
-        e_theme(name= input$ch8)|>
+        e_tooltip() |>
+        e_theme(name = input$ch8) |>
         e_toolbox() |>
-        e_toolbox_feature(
-          feature = c("saveAsImage")
-        )
+        e_toolbox_feature(feature = c("saveAsImage"))
 
       for (i in 1:length(levels(as.factor(les$nodes$name)))) {
         a$x$opts$series[[1]]$data[[i]]$y <- les$nodes$trophic_level[i] * -150
@@ -393,7 +515,13 @@ app_server <- function(input, output, session) {
 
       a$x$opts$series[[1]]$layout <- input$ch7
       a$x$opts$series[[1]]$draggable <- TRUE
-      a$x$opts$series[[1]]$label <- list(show = TRUE, fontSize = input$fontsize2, position = "bottom", borderColor = 'transparent', borderWidth = 0)
+      a$x$opts$series[[1]]$label <- list(
+        show = TRUE,
+        fontSize = input$fontsize2,
+        position = "bottom",
+        borderColor = 'transparent',
+        borderWidth = 0
+      )
       a$x$opts$series[[1]]$itemStyle <- list(borderWidth = 1, borderColor = 'black')
       a$x$opts$legend <- list(show = TRUE)
       a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth = 0)
@@ -409,7 +537,7 @@ app_server <- function(input, output, session) {
   ######################## End FREE ###################
 
   observe({
-    if(is.null(input$file2) | is.null(input$file2)) {
+    if (is.null(input$file2) | is.null(input$file2)) {
       return()
     } else {
       var_example <- 2
@@ -417,28 +545,30 @@ app_server <- function(input, output, session) {
   })
 
   output$filesUploaded <- reactive({
-    val <- !((is.null(input$file1) | is.null(input$file2)) & (is.null(input$file1R) | is.null(input$file2R)))
+    val <- !((is.null(input$file1) |
+                is.null(input$file2)) &
+               (is.null(input$file1R) | is.null(input$file2R)))
     print(val)
   })
-  outputOptions(output, 'filesUploaded', suspendWhenHidden=FALSE)
+  outputOptions(output, 'filesUploaded', suspendWhenHidden = FALSE)
 
   output$filesUploaded2 <- reactive({
     val <- !(is.null(input$file1_1))
     print(val)
   })
-  outputOptions(output, 'filesUploaded2', suspendWhenHidden=FALSE)
+  outputOptions(output, 'filesUploaded2', suspendWhenHidden = FALSE)
 
 
 
 
-  observeEvent(input$file1,{
+  observeEvent(input$file1, {
     output$ui1 <- renderUI({
       echarts4rOutput('my_chart', height = "800%") %>% withSpinner(type = 6, color = "lightblue")
     })
 
   })
 
-  observeEvent(input$file1R,{
+  observeEvent(input$file1R, {
     output$ui1R <- renderUI({
       echarts4rOutput('my_chartR', height = "800%") %>% withSpinner(type = 6, color = "lightblue")
     })
@@ -448,7 +578,7 @@ app_server <- function(input, output, session) {
   output$ui2 <- renderUI({
     echarts4rOutput('my_chart2', height = "800%") %>% withSpinner(type = 6, color = "lightblue")
   })
-  observeEvent(input$file1_1,{
+  observeEvent(input$file1_1, {
     output$ui3 <- renderUI({
       echarts4rOutput('my_chart3', height = "800%") %>% withSpinner(type = 6, color = "lightblue")
     })
@@ -458,7 +588,8 @@ app_server <- function(input, output, session) {
     if (input$ch1 == 'Trophic Position') {
       NULL
     } else {
-      showNotification("Groups are being generated with A.I. It might take a minute...", type = "message")
+      showNotification("Groups are being generated with A.I. It might take a minute...",
+                       type = "message")
     }
   })
 
@@ -467,27 +598,33 @@ app_server <- function(input, output, session) {
 
 
   observe ({
-
     if (input$ch5 == 'Ecopath') {
       req(input$file1, input$file2)
       # Read data from uploaded files
 
       basic_estimates <- read_csv(input$file1$datapath)
       #linha nova
-      basic_estimates= basic_estimates %>% filter(!is.na(...1))
+      basic_estimates = basic_estimates %>% filter(!is.na(...1))
       consumption <- read_csv(input$file2$datapath)
       n = ncol(consumption)
       # Data processing code
       labels <- data.frame('to' = basic_estimates$...1, 'Name' = basic_estimates$`Group name`)
-      data <- consumption %>% pivot_longer(cols = 3:n, names_to = 'to', values_to = 'weight')
+      data <- consumption %>% pivot_longer(cols = 3:n,
+                                           names_to = 'to',
+                                           values_to = 'weight')
       data <- data %>% select('from' = `Prey \\ predator`, to, weight)
       data$to <- as.numeric(data$to)
       data <- left_join(data, labels, by = 'to') %>%
-        select('from', 'to' = Name, weight)%>%
+        select('from', 'to' = Name, weight) %>%
         na.exclude()
 
 
-      data2 <- basic_estimates %>% select('name' = `Group name`, 'value' = `Biomass (t/km²)`, 'size' = `Biomass (t/km²)`, 't_level' = `Trophic level`)
+      data2 <- basic_estimates %>% select(
+        'name' = `Group name`,
+        'value' = `Biomass (t/km²)`,
+        'size' = `Biomass (t/km²)`,
+        't_level' = `Trophic level`
+      )
       data2$grp <- floor(data2$t_level)
       data2$category <- rep('', length(data2$name))
 
@@ -505,22 +642,42 @@ app_server <- function(input, output, session) {
       } else {
         if (input$ch1 == 'Groups') {
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as one of the following categories:\n\n Bird, Detritus, Invertebrate, Mammal, Fish, Reptile, Primary producer, or Unidentified.\n\nHere is the text to classify:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt, temperature = 0.3, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as one of the following categories:\n\n Bird, Detritus, Invertebrate, Mammal, Fish, Reptile, Primary producer, or Unidentified.\n\nHere is the text to classify:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.3,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
 
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('bird','detritus', 'invertebrate', 'mammal', 'fish', 'reptile', 'primary producer', 'unidentified')
+            target_words <- c(
+              'bird',
+              'detritus',
+              'invertebrate',
+              'mammal',
+              'fish',
+              'reptile',
+              'primary producer',
+              'unidentified'
+            )
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -545,18 +702,23 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
 
 
           # emojis
           classification_list2 <- list(
-            `mammal` =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',     # Whale emoji: 🐋
-            `fish` = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',       # Fish emoji: 🐟
-            `primary producer` = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',   # Herb emoji: 🌿
-            `bird` = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',       # Bird emoji: 🐦
+            `mammal` =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',
+            # Whale emoji: 🐋
+            `fish` = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',
+            # Fish emoji: 🐟
+            `primary producer` = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',
+            # Herb emoji: 🌿
+            `bird` = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',
+            # Bird emoji: 🐦
             `reptile` = 'path://m175.714,126.065c-8.83501,0 -28.20201,25.733 -43.83301,11.806c-5.407,-4.808 22.341,-14.663 21.222,-23.141c-0.92099,-6.964 -34.923,-17.43871 -23.03999,-24.0815c11.882,-6.6312 29.713,9.6485 43.16899,9.9355c29.27101,0.631 51.759,-9.7863 52.078,-9.9355c6.649,-3.1435 14.685,-0.5965 17.991,5.6905c3.31801,6.276 0.627,13.917 -5.99699,17.049c-1.61,0.757 -27.342,12.677 -61.59,12.677zm196.34499,325.43701c-48.74799,0 -100.54398,-33.40903 -100.54398,-95.31601c0,-15.76401 -10.93701,-19.056 -20.11601,-19.056c-9.16701,0 -20.104,3.29199 -20.104,19.056c0,61.90698 -51.808,95.31601 -100.54399,95.31601c-48.7364,0 -100.53241,-31.78003 -100.53241,-95.31601c0,-152.496 174.2754,-173.54901 174.2754,-152.496c0,21.052 -93.83501,-12.701 -93.83501,139.79599c0,25.41202 10.937,31.76801 20.104,31.76801c9.179,0 20.116,-3.293 20.116,-19.056c0,-61.896 51.79601,-95.31601 100.545,-95.31601c48.73601,0 100.54399,33.40802 100.54399,95.31601c0,15.763 10.93701,19.056 20.11603,19.056c9.17999,0 20.10397,-3.293 20.10397,-19.056l0,-190.632c0,-44.228 -41.98999,-50.83599 -67.021,-50.83599c0,0 -40.20798,12.712 -80.42799,12.712c-40.22099,0 -53.627,-29.7836 -53.627,-50.8361c-0.02499,-21.0526 53.60201,-38.1241 134.03,-38.1241c80.44,0 147.46201,51.0654 147.46201,127.08419l0,190.62001c0,61.90698 -51.80801,95.31601 -100.54501,95.31601zm-120.64799,-378.60191c0,-6.3362 5.502,-11.4727 12.28902,-11.4727c6.78598,0 12.28799,5.13651 12.28799,11.4727c0,6.3363 -5.50201,11.4728 -12.28799,11.4728c-6.78702,0 -12.28902,-5.13651 -12.28902,-11.4728z',
-            `detritus` = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',   # Leaf emoji: 🍂
+            `detritus` = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',
+            # Leaf emoji: 🍂
             `unidentified` = 'path://m258.09399,90.625c-77.72499,0 -143.40599,44.38 -143.40599,96.90601c0,17.84299 19.237,32.28099 43,32.28099c23.76199,0 43.03099,-14.438 43.03099,-32.28099c0,-10.76801 22.37001,-32.31201 57.375,-32.31201c43.021,0 71.68701,21.526 71.68701,43.06201c0,43.07199 -77.384,53.77899 -86.03101,53.84399c-23.76199,0 -43.03101,14.47 -43.03101,32.31299l0,43.06201c0,17.84201 19.26901,32.31201 43.03101,32.31201c23.76199,0.00098 43,-14.47 43,-32.31201l0,-14.34399c11.42899,-1.72299 24.18701,-4.28302 37.09399,-8.06201c59.31201,-17.30399 91.96802,-51.39899 91.96802,-96.032c0.00098,-54.03299 -42.99503,-118.437 -157.71802,-118.437zm-14.34399,290.71899c-23.75999,0 -43.03101,14.47101 -43.03101,32.31201c0,17.841 19.27101,32.28198 43.03101,32.28198c23.76001,-0.00098 43,-14.44098 43,-32.28198c0,-17.841 -19.23999,-32.31201 -43,-32.31201z',
             `invertebrate` = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z'      # Snail emoji: 🐌
           )
@@ -565,7 +727,7 @@ app_server <- function(input, output, session) {
           class2 = classification_list2[match(qw, names(classification_list2))]
 
           class2 <- data.frame(class2)
-          class2=class2 %>% gather('name', 'path', 1:length(data2$category))
+          class2 = class2 %>% gather('name', 'path', 1:length(data2$category))
           qw3 = class2$path
 
 
@@ -575,21 +737,32 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Nocturnal or Diurnal') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as Nocturnal, Diurnal or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.3, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as Nocturnal, Diurnal or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.3,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('nocturnal','diurnal', 'unidentified')
+            target_words <- c('nocturnal', 'diurnal', 'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -609,7 +782,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -618,21 +791,35 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Niche and Habitat (Ocean)') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as  Benthic, Pelagic, Terrestrial or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.1, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as  Benthic, Pelagic, Terrestrial or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.1,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('benthic','pelagic','terrestrial', 'unidentified')
+            target_words <- c('benthic',
+                              'pelagic',
+                              'terrestrial',
+                              'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -652,7 +839,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -661,21 +848,32 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Niche and Habitat (River)') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as  Benthic, Littoral, Demersal or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.9, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as  Benthic, Littoral, Demersal or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.9,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('benthic','littoral','demersal', 'unidentified')
+            target_words <- c('benthic', 'littoral', 'demersal', 'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -695,7 +893,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -704,21 +902,32 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Migration Patterns') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as Migratory, Non-Migratory or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.9, max_tokens = 5, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as Migratory, Non-Migratory or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.9,
+              max_tokens = 5,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('migratory','non-migratory', 'unidentified')
+            target_words <- c('migratory', 'non-migratory', 'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -737,7 +946,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -748,22 +957,37 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Conservation Status') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following according to IUCN redlist as Extinct, Endangered, Vulnerable, Least Concern, or Not Evaluated:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.1, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following according to IUCN redlist as Extinct, Endangered, Vulnerable, Least Concern, or Not Evaluated:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.1,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
 
           standardize_word <- function(word) {
-            target_words <- c('extinct','endangered', 'vulnerable', 'least concern', 'not evaluated')
+            target_words <- c('extinct',
+                              'endangered',
+                              'vulnerable',
+                              'least concern',
+                              'not evaluated')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -786,7 +1010,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -815,19 +1039,18 @@ app_server <- function(input, output, session) {
       )
 
 
-      table_data4_1 <- data.frame(
-        from = data$from,
-        to = data$to,
-        weight = data$weight
-      )
+      table_data4_1 <- data.frame(from = data$from,
+                                  to = data$to,
+                                  weight = data$weight)
       table_data3(table_data3_1)
       table_data4(table_data4_1)
 
 
       output$editableTable3 <- renderRHandsontable({
-        rhandsontable(table_data3(), rowHeaders = NULL)%>%
-          hot_cols(width = c(100, 100, 0.1,100,0.1, 100, 0.1,0.1))%>%
-          hot_cols(renderer = "
+        rhandsontable(table_data3(), rowHeaders = NULL) %>%
+          hot_cols(width = c(100, 100, 0.1, 100, 0.1, 100, 0.1, 0.1)) %>%
+          hot_cols(
+            renderer = "
         function(instance, td, row, col, prop, value, cellProperties) {
           Handsontable.renderers.TextRenderer.apply(this, arguments);
           if (col === 6|| col === 7) { // Adjust the column index (zero-based) you want to change the font size
@@ -835,13 +1058,20 @@ app_server <- function(input, output, session) {
             td.style.textAlign = 'right'; // Center the content
           }
         }
-      ")
+      "
+          )
 
 
       })
 
       output$editableTable4 <- renderRHandsontable({
-        rhandsontable(table_data4(), stretchH = "all", rowHeaders = NULL, width = "100%", allowRowAdd = TRUE)
+        rhandsontable(
+          table_data4(),
+          stretchH = "all",
+          rowHeaders = NULL,
+          width = "100%",
+          allowRowAdd = TRUE
+        )
       })
 
       # Observe changes in the tables and update the reactive values
@@ -851,7 +1081,6 @@ app_server <- function(input, output, session) {
 
 
       output$my_chart <- renderEcharts4r({
-
         les <- list(nodes = table_data3(), edges = table_data4())
 
 
@@ -868,10 +1097,7 @@ app_server <- function(input, output, session) {
               zoom = input$ch20,
               left = '30%',
               right = '10%',
-              lineStyle = list(
-                color = "source",
-                curveness = 0.3
-              ),
+              lineStyle = list(color = "source", curveness = 0.3),
               draggable = FALSE
             ) |>
             e_graph_nodes(
@@ -890,14 +1116,11 @@ app_server <- function(input, output, session) {
               value = weight,
               size = weight
             ) |>
-            e_tooltip()|>
-            e_theme(name= input$ch2)|>
+            e_tooltip() |>
+            e_theme(name = input$ch2) |>
             e_toolbox() |>
-            e_toolbox_feature(
-              feature = c("saveAsImage")
-            )
+            e_toolbox_feature(feature = c("saveAsImage"))
         } else {
-
           if (input$ch3 == 'Emoji') {
             a <- e_charts() |>
               e_graph(
@@ -906,10 +1129,7 @@ app_server <- function(input, output, session) {
                 zoom = input$ch20,
                 left = '30%',
                 right = '10%',
-                lineStyle = list(
-                  color = "source",
-                  curveness = 0.3
-                ),
+                lineStyle = list(color = "source", curveness = 0.3),
                 draggable = FALSE
               ) |>
               e_graph_nodes(
@@ -928,12 +1148,10 @@ app_server <- function(input, output, session) {
                 value = weight,
                 size = weight
               ) |>
-              e_tooltip()|>
-              e_theme(name= input$ch2)|>
+              e_tooltip() |>
+              e_theme(name = input$ch2) |>
               e_toolbox() |>
-              e_toolbox_feature(
-                feature = c("saveAsImage")
-              )
+              e_toolbox_feature(feature = c("saveAsImage"))
           }
           if (input$ch3 != 'Icons' && input$ch3 != 'Emoji') {
             les$nodes$symbol = rep(input$ch3, length(les$nodes$category))
@@ -945,12 +1163,9 @@ app_server <- function(input, output, session) {
                 left = '30%',
                 right = '10%',
                 zoom = input$ch20,
-                lineStyle = list(
-                  color = "source",
-                  curveness = 0.3
-                ),
+                lineStyle = list(color = "source", curveness = 0.3),
                 draggable = FALSE,
-                symbolSize= 20
+                symbolSize = 20
               ) |>
               e_graph_nodes(
                 nodes = les$nodes,
@@ -968,12 +1183,10 @@ app_server <- function(input, output, session) {
                 value = weight,
                 size = weight
               ) |>
-              e_tooltip()|>
-              e_theme(name= input$ch2)|>
+              e_tooltip() |>
+              e_theme(name = input$ch2) |>
               e_toolbox() |>
-              e_toolbox_feature(
-                feature = c("saveAsImage")
-              )
+              e_toolbox_feature(feature = c("saveAsImage"))
           }
         }
 
@@ -989,10 +1202,18 @@ app_server <- function(input, output, session) {
 
         a$x$opts$series[[1]]$layout <- input$ch6
         a$x$opts$series[[1]]$draggable <- TRUE
-        a$x$opts$series[[1]]$label <- list(show = TRUE, fontSize = input$fontsize, position = "bottom",borderColor = 'transparent', borderWidth =0)
-        a$x$opts$series[[1]]$itemStyle <- list(borderWidth = 1, borderColor = 'black')
+        a$x$opts$series[[1]]$label <- list(
+          show = TRUE,
+          fontSize = input$fontsize,
+          position = "bottom",
+          borderColor = 'transparent',
+          borderWidth = 0
+        )
+        a$x$opts$series[[1]]$itemStyle <- list(borderWidth = 1,
+                                               borderColor = 'black')
         a$x$opts$legend <- list(show = TRUE)
-        a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth =0)
+        a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth =
+                                    0)
 
         for (i in 1:length(les$nodes$grp)) {
           a$x$opts$series[[1]]$data[[i]]$symbolSize = as.numeric(a$x$opts$series[[1]]$data[[i]]$symbolSize) * input$ch4
@@ -1004,15 +1225,19 @@ app_server <- function(input, output, session) {
       })
     }
     else {
-
       req(input$file1R, input$file2R)
       # Read data from uploaded files
 
       data <- read_csv(input$file2R$datapath)
-      data2<- read_csv(input$file1R$datapath)
+      data2 <- read_csv(input$file1R$datapath)
       colnames(data2) <- str_to_title(colnames(data2))
       colnames(data) <- tolower(colnames(data))
-      data2 <- data2 %>% select('name' = 'Group_name', 'value' = 'Biomass', 'size' = 'Biomass', 't_level' = 'Trophic_level')
+      data2 <- data2 %>% select(
+        'name' = 'Group_name',
+        'value' = 'Biomass',
+        'size' = 'Biomass',
+        't_level' = 'Trophic_level'
+      )
       data2$name = as.factor(data2$name)
       data2$value = as.numeric(data2$value)
       data2$size = as.numeric(data2$size)
@@ -1034,25 +1259,44 @@ app_server <- function(input, output, session) {
         qw3 = data2$grp
         qw2_names = data2$grp
       } else {
-
         if (input$ch1 == 'Groups') {
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as one of the following categories:\n\n Bird, Detritus, Invertebrate, Mammal, Fish, Reptile, Primary producer, or Unidentified.\n\nHere is the text to classify:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt, temperature = 0.3, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as one of the following categories:\n\n Bird, Detritus, Invertebrate, Mammal, Fish, Reptile, Primary producer, or Unidentified.\n\nHere is the text to classify:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.3,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
 
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('bird','detritus', 'invertebrate', 'mammal', 'fish', 'reptile', 'primary producer', 'unidentified')
+            target_words <- c(
+              'bird',
+              'detritus',
+              'invertebrate',
+              'mammal',
+              'fish',
+              'reptile',
+              'primary producer',
+              'unidentified'
+            )
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1077,18 +1321,23 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
 
 
           # emojis
           classification_list2 <- list(
-            `mammal` =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',     # Whale emoji: 🐋
-            `fish` = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',       # Fish emoji: 🐟
-            `primary producer` = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',   # Herb emoji: 🌿
-            `bird` = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',       # Bird emoji: 🐦
+            `mammal` =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',
+            # Whale emoji: 🐋
+            `fish` = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',
+            # Fish emoji: 🐟
+            `primary producer` = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',
+            # Herb emoji: 🌿
+            `bird` = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',
+            # Bird emoji: 🐦
             `reptile` = 'path://m175.714,126.065c-8.83501,0 -28.20201,25.733 -43.83301,11.806c-5.407,-4.808 22.341,-14.663 21.222,-23.141c-0.92099,-6.964 -34.923,-17.43871 -23.03999,-24.0815c11.882,-6.6312 29.713,9.6485 43.16899,9.9355c29.27101,0.631 51.759,-9.7863 52.078,-9.9355c6.649,-3.1435 14.685,-0.5965 17.991,5.6905c3.31801,6.276 0.627,13.917 -5.99699,17.049c-1.61,0.757 -27.342,12.677 -61.59,12.677zm196.34499,325.43701c-48.74799,0 -100.54398,-33.40903 -100.54398,-95.31601c0,-15.76401 -10.93701,-19.056 -20.11601,-19.056c-9.16701,0 -20.104,3.29199 -20.104,19.056c0,61.90698 -51.808,95.31601 -100.54399,95.31601c-48.7364,0 -100.53241,-31.78003 -100.53241,-95.31601c0,-152.496 174.2754,-173.54901 174.2754,-152.496c0,21.052 -93.83501,-12.701 -93.83501,139.79599c0,25.41202 10.937,31.76801 20.104,31.76801c9.179,0 20.116,-3.293 20.116,-19.056c0,-61.896 51.79601,-95.31601 100.545,-95.31601c48.73601,0 100.54399,33.40802 100.54399,95.31601c0,15.763 10.93701,19.056 20.11603,19.056c9.17999,0 20.10397,-3.293 20.10397,-19.056l0,-190.632c0,-44.228 -41.98999,-50.83599 -67.021,-50.83599c0,0 -40.20798,12.712 -80.42799,12.712c-40.22099,0 -53.627,-29.7836 -53.627,-50.8361c-0.02499,-21.0526 53.60201,-38.1241 134.03,-38.1241c80.44,0 147.46201,51.0654 147.46201,127.08419l0,190.62001c0,61.90698 -51.80801,95.31601 -100.54501,95.31601zm-120.64799,-378.60191c0,-6.3362 5.502,-11.4727 12.28902,-11.4727c6.78598,0 12.28799,5.13651 12.28799,11.4727c0,6.3363 -5.50201,11.4728 -12.28799,11.4728c-6.78702,0 -12.28902,-5.13651 -12.28902,-11.4728z',
-            `detritus` = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',   # Leaf emoji: 🍂
+            `detritus` = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',
+            # Leaf emoji: 🍂
             `unidentified` = 'path://m258.09399,90.625c-77.72499,0 -143.40599,44.38 -143.40599,96.90601c0,17.84299 19.237,32.28099 43,32.28099c23.76199,0 43.03099,-14.438 43.03099,-32.28099c0,-10.76801 22.37001,-32.31201 57.375,-32.31201c43.021,0 71.68701,21.526 71.68701,43.06201c0,43.07199 -77.384,53.77899 -86.03101,53.84399c-23.76199,0 -43.03101,14.47 -43.03101,32.31299l0,43.06201c0,17.84201 19.26901,32.31201 43.03101,32.31201c23.76199,0.00098 43,-14.47 43,-32.31201l0,-14.34399c11.42899,-1.72299 24.18701,-4.28302 37.09399,-8.06201c59.31201,-17.30399 91.96802,-51.39899 91.96802,-96.032c0.00098,-54.03299 -42.99503,-118.437 -157.71802,-118.437zm-14.34399,290.71899c-23.75999,0 -43.03101,14.47101 -43.03101,32.31201c0,17.841 19.27101,32.28198 43.03101,32.28198c23.76001,-0.00098 43,-14.44098 43,-32.28198c0,-17.841 -19.23999,-32.31201 -43,-32.31201z',
             `invertebrate` = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z'      # Snail emoji: 🐌
           )
@@ -1097,7 +1346,7 @@ app_server <- function(input, output, session) {
           class2 = classification_list2[match(qw, names(classification_list2))]
 
           class2 <- data.frame(class2)
-          class2=class2 %>% gather('name', 'path', 1:length(data2$category))
+          class2 = class2 %>% gather('name', 'path', 1:length(data2$category))
           qw3 = class2$path
 
 
@@ -1105,22 +1354,42 @@ app_server <- function(input, output, session) {
 
         if (input$ch1 == 'Groups') {
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as one of the following categories:\n\n Bird, Detritus, Invertebrate, Mammal, Fish, Reptile, Primary producer, or Unidentified.\n\nHere is the text to classify:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt, temperature = 0.3, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as one of the following categories:\n\n Bird, Detritus, Invertebrate, Mammal, Fish, Reptile, Primary producer, or Unidentified.\n\nHere is the text to classify:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.3,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
 
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('bird','detritus', 'invertebrate', 'mammal', 'fish', 'reptile', 'primary producer', 'unidentified')
+            target_words <- c(
+              'bird',
+              'detritus',
+              'invertebrate',
+              'mammal',
+              'fish',
+              'reptile',
+              'primary producer',
+              'unidentified'
+            )
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1145,18 +1414,23 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
 
 
           # emojis
           classification_list2 <- list(
-            `mammal` =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',     # Whale emoji: 🐋
-            `fish` = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',       # Fish emoji: 🐟
-            `primary producer` = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',   # Herb emoji: 🌿
-            `bird` = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',       # Bird emoji: 🐦
+            `mammal` =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',
+            # Whale emoji: 🐋
+            `fish` = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',
+            # Fish emoji: 🐟
+            `primary producer` = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',
+            # Herb emoji: 🌿
+            `bird` = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',
+            # Bird emoji: 🐦
             `reptile` = 'path://m175.714,126.065c-8.83501,0 -28.20201,25.733 -43.83301,11.806c-5.407,-4.808 22.341,-14.663 21.222,-23.141c-0.92099,-6.964 -34.923,-17.43871 -23.03999,-24.0815c11.882,-6.6312 29.713,9.6485 43.16899,9.9355c29.27101,0.631 51.759,-9.7863 52.078,-9.9355c6.649,-3.1435 14.685,-0.5965 17.991,5.6905c3.31801,6.276 0.627,13.917 -5.99699,17.049c-1.61,0.757 -27.342,12.677 -61.59,12.677zm196.34499,325.43701c-48.74799,0 -100.54398,-33.40903 -100.54398,-95.31601c0,-15.76401 -10.93701,-19.056 -20.11601,-19.056c-9.16701,0 -20.104,3.29199 -20.104,19.056c0,61.90698 -51.808,95.31601 -100.54399,95.31601c-48.7364,0 -100.53241,-31.78003 -100.53241,-95.31601c0,-152.496 174.2754,-173.54901 174.2754,-152.496c0,21.052 -93.83501,-12.701 -93.83501,139.79599c0,25.41202 10.937,31.76801 20.104,31.76801c9.179,0 20.116,-3.293 20.116,-19.056c0,-61.896 51.79601,-95.31601 100.545,-95.31601c48.73601,0 100.54399,33.40802 100.54399,95.31601c0,15.763 10.93701,19.056 20.11603,19.056c9.17999,0 20.10397,-3.293 20.10397,-19.056l0,-190.632c0,-44.228 -41.98999,-50.83599 -67.021,-50.83599c0,0 -40.20798,12.712 -80.42799,12.712c-40.22099,0 -53.627,-29.7836 -53.627,-50.8361c-0.02499,-21.0526 53.60201,-38.1241 134.03,-38.1241c80.44,0 147.46201,51.0654 147.46201,127.08419l0,190.62001c0,61.90698 -51.80801,95.31601 -100.54501,95.31601zm-120.64799,-378.60191c0,-6.3362 5.502,-11.4727 12.28902,-11.4727c6.78598,0 12.28799,5.13651 12.28799,11.4727c0,6.3363 -5.50201,11.4728 -12.28799,11.4728c-6.78702,0 -12.28902,-5.13651 -12.28902,-11.4728z',
-            `detritus` = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',   # Leaf emoji: 🍂
+            `detritus` = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',
+            # Leaf emoji: 🍂
             `unidentified` = 'path://m258.09399,90.625c-77.72499,0 -143.40599,44.38 -143.40599,96.90601c0,17.84299 19.237,32.28099 43,32.28099c23.76199,0 43.03099,-14.438 43.03099,-32.28099c0,-10.76801 22.37001,-32.31201 57.375,-32.31201c43.021,0 71.68701,21.526 71.68701,43.06201c0,43.07199 -77.384,53.77899 -86.03101,53.84399c-23.76199,0 -43.03101,14.47 -43.03101,32.31299l0,43.06201c0,17.84201 19.26901,32.31201 43.03101,32.31201c23.76199,0.00098 43,-14.47 43,-32.31201l0,-14.34399c11.42899,-1.72299 24.18701,-4.28302 37.09399,-8.06201c59.31201,-17.30399 91.96802,-51.39899 91.96802,-96.032c0.00098,-54.03299 -42.99503,-118.437 -157.71802,-118.437zm-14.34399,290.71899c-23.75999,0 -43.03101,14.47101 -43.03101,32.31201c0,17.841 19.27101,32.28198 43.03101,32.28198c23.76001,-0.00098 43,-14.44098 43,-32.28198c0,-17.841 -19.23999,-32.31201 -43,-32.31201z',
             `invertebrate` = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z'      # Snail emoji: 🐌
           )
@@ -1165,7 +1439,7 @@ app_server <- function(input, output, session) {
           class2 = classification_list2[match(qw, names(classification_list2))]
 
           class2 <- data.frame(class2)
-          class2=class2 %>% gather('name', 'path', 1:length(data2$category))
+          class2 = class2 %>% gather('name', 'path', 1:length(data2$category))
           qw3 = class2$path
 
 
@@ -1175,21 +1449,32 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Nocturnal or Diurnal') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as Nocturnal, Diurnal or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.3, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as Nocturnal, Diurnal or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.3,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('nocturnal','diurnal', 'unidentified')
+            target_words <- c('nocturnal', 'diurnal', 'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1209,7 +1494,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -1218,21 +1503,35 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Niche and Habitat (Ocean)') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as  Benthic, Pelagic, Terrestrial or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.9, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as  Benthic, Pelagic, Terrestrial or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.9,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('benthic','pelagic','terrestrial', 'unidentified')
+            target_words <- c('benthic',
+                              'pelagic',
+                              'terrestrial',
+                              'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1252,7 +1551,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -1261,21 +1560,32 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Niche and Habitat (River)') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as  Benthic, Littoral, Demersal or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.9, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as  Benthic, Littoral, Demersal or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.9,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('benthic','littoral','demersal', 'unidentified')
+            target_words <- c('benthic', 'littoral', 'demersal', 'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1295,7 +1605,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -1304,21 +1614,32 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Migration Patterns') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following as Migratory, Non-Migratory or Unidentified:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.9, max_tokens = 5, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following as Migratory, Non-Migratory or Unidentified:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.9,
+              max_tokens = 5,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
           standardize_word <- function(word) {
-            target_words <- c('migratory','non-migratory', 'unidentified')
+            target_words <- c('migratory', 'non-migratory', 'unidentified')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1337,7 +1658,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -1348,22 +1669,37 @@ app_server <- function(input, output, session) {
         if (input$ch1 == 'Conservation Status') {
           #gpt3 classification
           classify_category <- function(text) {
-            prompt <- paste("Please classify the following according to IUCN redlist as Extinct, Endangered, Vulnerable, Least Concern, or Not Evaluated:\n\n", text, "\n\nCategory:")
-            response <- gpt3_single_completion(prompt_input = prompt,temperature = 0.1, max_tokens = 3, n = 1, model = "gpt-3.5-turbo-instruct")
+            prompt <- paste(
+              "Please classify the following according to IUCN redlist as Extinct, Endangered, Vulnerable, Least Concern, or Not Evaluated:\n\n",
+              text,
+              "\n\nCategory:"
+            )
+            response <- gpt3_single_completion(
+              prompt_input = prompt,
+              temperature = 0.1,
+              max_tokens = 3,
+              n = 1,
+              model = "gpt-3.5-turbo-instruct"
+            )
             category <- response[[1]]$gpt3
           }
           qw = sapply(data2$name, classify_category) %>% tolower()
 
 
           standardize_word <- function(word) {
-            target_words <- c('extinct','endangered', 'vulnerable', 'least concern', 'not evaluated')
+            target_words <- c('extinct',
+                              'endangered',
+                              'vulnerable',
+                              'least concern',
+                              'not evaluated')
             distances <- stringdistmatrix(word, target_words, method = 'jw')
 
             closest_match_index <- which.min(distances)
             closest_match_distance <- distances[closest_match_index]
 
             other_distances <- distances[-closest_match_index]
-            if (closest_match_distance < 10 && all(closest_match_distance < other_distances + 3)) {
+            if (closest_match_distance < 10 &&
+                all(closest_match_distance < other_distances + 3)) {
               return(target_words[closest_match_index])
             } else {
               return(word)
@@ -1386,7 +1722,7 @@ app_server <- function(input, output, session) {
           class = classification_list[match(qw, names(classification_list))]
 
           class <- data.frame(class)
-          class=class %>% gather('name', 'path', 1:length(data2$category))
+          class = class %>% gather('name', 'path', 1:length(data2$category))
           qw2 = class$path
           qw3 = data2$grp
 
@@ -1416,19 +1752,18 @@ app_server <- function(input, output, session) {
       )
 
 
-      table_data4_1 <- data.frame(
-        from = data$from,
-        to = data$to,
-        weight = data$weight
-      )
+      table_data4_1 <- data.frame(from = data$from,
+                                  to = data$to,
+                                  weight = data$weight)
       table_data3(table_data3_1)
       table_data4(table_data4_1)
 
 
       output$editableTable3 <- renderRHandsontable({
-        rhandsontable(table_data3(), rowHeaders = NULL)%>%
-          hot_cols(width = c(100, 100, 0.1,100,0.1, 100, 0.1,0.1))%>%
-          hot_cols(renderer = "
+        rhandsontable(table_data3(), rowHeaders = NULL) %>%
+          hot_cols(width = c(100, 100, 0.1, 100, 0.1, 100, 0.1, 0.1)) %>%
+          hot_cols(
+            renderer = "
         function(instance, td, row, col, prop, value, cellProperties) {
           Handsontable.renderers.TextRenderer.apply(this, arguments);
           if (col === 6|| col === 7) { // Adjust the column index (zero-based) you want to change the font size
@@ -1436,13 +1771,20 @@ app_server <- function(input, output, session) {
             td.style.textAlign = 'right'; // Center the content
           }
         }
-      ")
+      "
+          )
 
 
       })
 
       output$editableTable4 <- renderRHandsontable({
-        rhandsontable(table_data4(), stretchH = "all", rowHeaders = NULL, width = "100%", allowRowAdd = TRUE)
+        rhandsontable(
+          table_data4(),
+          stretchH = "all",
+          rowHeaders = NULL,
+          width = "100%",
+          allowRowAdd = TRUE
+        )
       })
 
       # Observe changes in the tables and update the reactive values
@@ -1452,7 +1794,6 @@ app_server <- function(input, output, session) {
 
 
       output$my_chartR <- renderEcharts4r({
-
         les <- list(nodes = table_data3(), edges = table_data4())
 
 
@@ -1469,10 +1810,7 @@ app_server <- function(input, output, session) {
               zoom = input$ch20,
               left = '30%',
               right = '10%',
-              lineStyle = list(
-                color = "source",
-                curveness = 0.3
-              ),
+              lineStyle = list(color = "source", curveness = 0.3),
               draggable = FALSE
             ) |>
             e_graph_nodes(
@@ -1491,14 +1829,11 @@ app_server <- function(input, output, session) {
               value = weight,
               size = weight
             ) |>
-            e_tooltip()|>
-            e_theme(name= input$ch2)|>
+            e_tooltip() |>
+            e_theme(name = input$ch2) |>
             e_toolbox() |>
-            e_toolbox_feature(
-              feature = c("saveAsImage")
-            )
+            e_toolbox_feature(feature = c("saveAsImage"))
         } else {
-
           if (input$ch3 == 'Emoji') {
             a <- e_charts() |>
               e_graph(
@@ -1507,10 +1842,7 @@ app_server <- function(input, output, session) {
                 zoom = input$ch20,
                 left = '30%',
                 right = '10%',
-                lineStyle = list(
-                  color = "source",
-                  curveness = 0.3
-                ),
+                lineStyle = list(color = "source", curveness = 0.3),
                 draggable = FALSE
               ) |>
               e_graph_nodes(
@@ -1529,12 +1861,10 @@ app_server <- function(input, output, session) {
                 value = weight,
                 size = weight
               ) |>
-              e_tooltip()|>
-              e_theme(name= input$ch2)|>
+              e_tooltip() |>
+              e_theme(name = input$ch2) |>
               e_toolbox() |>
-              e_toolbox_feature(
-                feature = c("saveAsImage")
-              )
+              e_toolbox_feature(feature = c("saveAsImage"))
           }
           if (input$ch3 != 'Icons' && input$ch3 != 'Emoji') {
             les$nodes$symbol = rep(input$ch3, length(les$nodes$category))
@@ -1546,12 +1876,9 @@ app_server <- function(input, output, session) {
                 left = '30%',
                 right = '10%',
                 zoom = input$ch20,
-                lineStyle = list(
-                  color = "source",
-                  curveness = 0.3
-                ),
+                lineStyle = list(color = "source", curveness = 0.3),
                 draggable = FALSE,
-                symbolSize= 20
+                symbolSize = 20
               ) |>
               e_graph_nodes(
                 nodes = les$nodes,
@@ -1569,12 +1896,10 @@ app_server <- function(input, output, session) {
                 value = weight,
                 size = weight
               ) |>
-              e_tooltip()|>
-              e_theme(name= input$ch2)|>
+              e_tooltip() |>
+              e_theme(name = input$ch2) |>
               e_toolbox() |>
-              e_toolbox_feature(
-                feature = c("saveAsImage")
-              )
+              e_toolbox_feature(feature = c("saveAsImage"))
           }
         }
 
@@ -1590,10 +1915,18 @@ app_server <- function(input, output, session) {
 
         a$x$opts$series[[1]]$layout <- input$ch6
         a$x$opts$series[[1]]$draggable <- TRUE
-        a$x$opts$series[[1]]$label <- list(show = TRUE, fontSize = input$fontsize, position = "bottom",borderColor = 'transparent', borderWidth =0)
-        a$x$opts$series[[1]]$itemStyle <- list(borderWidth = 1, borderColor = 'black')
+        a$x$opts$series[[1]]$label <- list(
+          show = TRUE,
+          fontSize = input$fontsize,
+          position = "bottom",
+          borderColor = 'transparent',
+          borderWidth = 0
+        )
+        a$x$opts$series[[1]]$itemStyle <- list(borderWidth = 1,
+                                               borderColor = 'black')
         a$x$opts$legend <- list(show = TRUE)
-        a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth =0)
+        a$x$opts$itemStyle = list(borderColor = 'transparent', borderWidth =
+                                    0)
 
         for (i in 1:length(les$nodes$grp)) {
           a$x$opts$series[[1]]$data[[i]]$symbolSize = as.numeric(a$x$opts$series[[1]]$data[[i]]$symbolSize) * input$ch4
@@ -1615,7 +1948,7 @@ app_server <- function(input, output, session) {
     # Calculate connectance
     connectance <- num_links / (num_species * (num_species - 1))
 
-    liquid <- data.frame(val = c(connectance, connectance,connectance))
+    liquid <- data.frame(val = c(connectance, connectance, connectance))
     liquid |>
       e_charts() |>
       e_liquid(val)
@@ -1623,7 +1956,7 @@ app_server <- function(input, output, session) {
   })
 
   output$text2 <- renderEcharts4r({
-    w= setNames(table_data3()$grp, table_data3()$name)
+    w = setNames(table_data3()$grp, table_data3()$name)
 
     matched_species_from <- w[match(table_data4()$from, names(w))]
     matched_species_to <- w[match(table_data4()$to, names(w))]
@@ -1631,13 +1964,13 @@ app_server <- function(input, output, session) {
     dataw = table_data4()
     dataw$from = matched_species_from
     dataw$to = matched_species_to
-    rr= dataw%>% group_by(from,to)%>%
-      summarise(soma = sum(weight))%>%
+    rr = dataw %>% group_by(from, to) %>%
+      summarise(soma = sum(weight)) %>%
       na.exclude()
-    rr=rr %>% filter(from != to)
+    rr = rr %>% filter(from != to)
     rr$from = as.factor(rr$from)
     rr$to = as.factor(rr$to)
-    rr2 = data.frame(name = unique(rr$from), value= rep(1, length(unique(rr$from))))
+    rr2 = data.frame(name = unique(rr$from), value = rep(1, length(unique(rr$from))))
     les_mini = list(nodes = rr2, edges = rr)
     les_mini$nodes$group = as.factor(les_mini$nodes$name)
     les_mini$edges$weight <- scales::rescale(les_mini$edges$soma, to = c(1, 6))
@@ -1649,15 +1982,13 @@ app_server <- function(input, output, session) {
         zoom = 2,
 
         right = '35%',
-        lineStyle = list(
-          color = "source",
-          curveness = 0.310
-        ),
+        lineStyle = list(color = "source", curveness = 0.310),
         draggable = FALSE
       ) |>
       e_graph_nodes(
         nodes = les_mini$nodes,
-        name = "name", # Column name for the node names
+        name = "name",
+        # Column name for the node names
         value = "value",
         size = size,
         category = group,
@@ -1671,11 +2002,9 @@ app_server <- function(input, output, session) {
         value = soma,
         size = weight
       ) |>
-      e_tooltip()|>
+      e_tooltip() |>
       e_toolbox() |>
-      e_toolbox_feature(
-        feature = c("saveAsImage")
-      )
+      e_toolbox_feature(feature = c("saveAsImage"))
 
   })
 
@@ -1687,6 +2016,29 @@ app_server <- function(input, output, session) {
     table_data4(hot_to_r(input$editableTable4))
   })
 
+  output$dwntable2 <- downloadHandler(
+    filename = function() {
+      paste('csv-files-', Sys.Date(), '.zip', sep = '')
+    },
+    content = function(zipfile) {
+      # Create a temporary directory to store the CSV files
+      tmpdir <- tempdir()
+      setwd(tmpdir)
+
+      # Create some example CSV data frames
+      df1 <- table_data4()
+      df2 <- table_data3()
+
+      # Write the data frames to CSV files
+      write.csv(df2, file = "basic_estimates.csv", row.names = FALSE)
+      write.csv(df1, file = "consumption.csv", row.names = FALSE)
+
+      # Zip the CSV files
+      zip(zipfile,
+          files = c("basic_estimates.csv", "consumption.csv"))
+    },
+    contentType = "application/zip"
+  )
 
 
 
@@ -1728,15 +2080,23 @@ app_server <- function(input, output, session) {
       })
       #emoji
       classification_list2 <- list(
-        mammal =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',     # Whale emoji: 🐋
-        fish = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',       # Fish emoji: 🐟
-        'primary producer' = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',   # Herb emoji: 🌿
-        'bird' = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',       # Bird emoji: 🐦
+        mammal =  'path://m115.089,80.352c-19.93079,-0.4459 -42.68719,8.2031 -42.68719,20.219c0,21.361 35.9702,10.67 47.9692,32.03101c0.268,0.478 0.544,0.72 0.812,1.125c2.614,23.23399 11.959,52.28099 23.188,52.28099c11.233,0 20.60899,-29.073 23.218,-52.312c0.25999,-0.394 0.521,-0.631 0.782,-1.09399c11.998,-21.36101 48,-10.67001 48,-32.03101c0,-21.3614 -72,-32.042 -72,0c0,-14.0185 -13.78,-19.8722 -29.28201,-20.219zm360.93801,34.40601c-8.43701,0.501 -28.69101,20.521 -55.68802,28.531c-35.995,10.681 -83.96698,-21.361 -71.96799,0c11.064,19.69901 32.36801,48.42101 73.25,52.782c-3.27301,19.08 2.28201,42.03799 -25.28201,64.718c-24.09299,19.83398 -36.25198,13.96799 -95.96799,-21.40601c-35.996,-21.31799 -84.009,-42.687 -156,-42.687c-86.1498,0 -95.9692,52.61501 -95.9692,117.50002c0,28.41699 1.8916,54.46298 11.25,74.78098c0.0355,0.077 0.0893,0.142 0.125,0.21902c1.3751,2.961 2.9128,5.79498 4.625,8.5c0.6395,1.01099 1.40369,1.93298 2.0937,2.90598c1.2682,1.78802 2.553,3.564 4,5.21902c0.8195,0.93698 1.7453,1.79398 2.625,2.68698c1.4597,1.48199 2.9609,2.927 4.5938,4.28101c1.09019,0.905 2.26649,1.74799 3.4375,2.59399c1.7047,1.23199 3.492,2.397 5.375,3.5c1.2331,0.72299 2.4998,1.42801 3.8125,2.09399c2.0739,1.052 4.28239,2.00101 6.5625,2.90601c1.4617,0.58002 2.9191,1.17001 4.4692,1.68802c2.388,0.79797 4.958,1.47897 7.562,2.125c1.626,0.40198 3.193,0.84598 4.906,1.18698c3.011,0.60101 6.273,1.03201 9.563,1.43802c1.618,0.19897 3.125,0.474 4.812,0.625c5.08499,0.45499 10.41299,0.71799 16.157,0.71799c35.647,0.00101 127.55099,-0.31201 156,-0.31201c23.99701,0 62.888,-7.09998 95.96799,-31.71899c3.83301,-2.85199 7.38702,-5.92801 10.81302,-9.09399c1.272,-1.16501 2.49799,-2.358 3.71899,-3.56201c1.802,-1.798 3.53299,-3.65198 5.21799,-5.53098c22.86301,-25.108 35.854,-57.039 40.28201,-88.625c-0.02899,0.06299 -0.06601,0.12399 -0.09399,0.18698c6.84198,-39.457 2.97998,-77.679 -4.625,-99.937c29.62,-12.205 28.68698,-53.05499 28.68698,-71.125c0,-5.341 -1.5,-7.355 -4.31198,-7.188zm-374.90601,184.87499c9.118,0 16.5,7.802 16.5,17.43802c0,9.63599 -7.382,17.43698 -16.5,17.43698c-9.1191,0 -16.5317,-7.80099 -16.5317,-17.43698c0,-9.63602 7.4125,-17.43802 16.5317,-17.43802z',
+        # Whale emoji: 🐋
+        fish = 'path://m205.188,80.7812c-16.78,0.00011 -33.24001,30.4448 -36.84401,64.40681c-73.35699,19.08099 -110.96899,81.035 -111.09399,129.812c3.2441,3.03201 11.5988,8.65201 21.6875,15.18799c27.0765,17.539 68.1205,42.75803 67.59351,50.46802c-0.72301,10.58301 -28.394,-1.121 -38.687,-3.56201c-13.1782,-3.11301 -19.5259,-5.58798 -24.0002,-6.46899c-1.8088,-0.35599 -3.397,-0.51501 -4.875,-0.25c-10.4677,4.103 -6.9193,15.35199 -3.0313,21.78101c18.6673,33.35901 90.79449,59.59399 151.53149,59.59399c7.91901,0 15.81601,-0.73801 23.68701,-1.78101c19.91,12.02402 45.789,21.25 71.81299,21.25c22.51501,0 4.733,-18.909 -9.375,-39.31299c26.276,-11.57901 50.367,-27.004 70.125,-43.375c24.564,37.49298 63.78302,66.25 91.09302,66.25c18.97897,0 37.948,-17.92801 18.96899,-37.40601c-18.979,-19.453 -37.96899,-70.25 -37.96899,-95.81299c0,-12.78101 18.978,-79.40901 37.96899,-98.87401c18.96698,-19.466 0.00998,-40.46901 -18.96899,-40.46901c-25.48203,0 -61.345,31.856 -86,68.343c-3.70502,-3.093 -7.504,-6.166 -11.53101,-9.218c-35.54901,-74.81599 -123.078,-120.56269 -172.093,-120.5628zm-62.813,111.3128c13.757,0 24.938,11.42601 24.937,25.56201c0,14.123 -11.17999,25.56299 -24.937,25.56299c-13.77,0 -24.937,-11.452 -24.937,-25.56299c0,-14.136 11.16699,-25.56201 24.937,-25.56201z',
+        # Fish emoji: 🐟
+        'primary producer' = 'path://m159.25,40.6562c-24.94501,21.2956 -35.47,49.4967 -34.125,77.1558c0.126,2.633 0.598,5.228 0.937,7.844c0.26,1.989 0.339,3.99599 0.719,5.969c0.868,4.50999 2.04501,8.996 3.531,13.375c1.424,4.198 3.076,8.019 4.907,11.625c0.063,0.12399 0.09201,0.282 0.15601,0.40601c0.02699,0.05299 0.06599,0.10399 0.09399,0.157c0.931,1.797 1.92601,3.545 2.96901,5.218c0.043,0.071 0.08,0.14899 0.12399,0.21899c1.035,1.647 2.134,3.241 3.282,4.78101c2.071,2.78099 4.442,5.31499 6.90601,7.81299c0.392,0.39801 0.69099,0.858 1.09399,1.25c1.748,1.701 3.80101,3.26801 5.75,4.875c1.39801,1.15201 2.651,2.38301 4.15601,3.5c1.40199,1.039 3.065,2.01401 4.562,3.03101c2.30901,1.56799 4.55,3.179 7.09401,4.71899c2.69499,1.62901 5.74599,3.272 8.71899,4.90601c1.41,0.77499 2.651,1.562 4.125,2.34399c5.771,3.061 13.097,6.52701 19.90601,9.84401c4.381,2.133 7.946,4.026 12.782,6.343l0,-0.03101c0.383,0.18401 0.644,0.315 1.03099,0.5c-28.61899,25.597 -51.97299,49.418 -71,71.375c3.01901,-29.38699 3.09801,-46.612 -13.25,-64.53101c-18.298,-20.05299 -47.74369,-31.87599 -79.18779,-25.43799c-0.247,0.49699 -0.3609,1.002 -0.5937,1.5c-0.0053,-0.00401 -0.0259,0.00499 -0.0313,0c-0.1405,0.30099 -0.2083,0.605 -0.3437,0.90599c-1.3185,2.93201 -2.4697,5.858 -3.3125,8.813c-0.0777,0.271 -0.1136,0.541 -0.1875,0.813c-0.8244,3.04399 -1.4639,6.086 -1.8125,9.12399c-0.0024,0.021 0.0024,0.04201 0,0.063c-1.1121,9.782 0.1117,19.466 3.3438,28.53101c0.2314,0.653 0.5922,1.25999 0.8437,1.90599c0.9142,2.338 1.8339,4.66501 3,6.907c0.6007,1.159 1.366,2.245 2.0313,3.375c1.0156,1.72101 1.9671,3.478 3.125,5.125c1.8886,2.69 3.9429,5.25601 6.1874,7.71899c9.15591,10.026 18.8129,15.50201 31.25,18.90601c3.1098,0.85101 6.38181,1.55301 9.8748,2.18701c8.62,1.565 19.165,2.59 30.87501,3.65698c-58.5201,70.431 -72.36211,120.69302 -76.93721,147.53101c-1.2299,7.18802 9.3944,16.25702 17.375,17.375c7.99419,1.08099 24.28719,-4.84299 25.5312,-12.03198c2.92,-17.18402 10.168,-47.13202 30.812,-86.46802c32.181,33.46201 48.39801,50.207 83.157,52.5c34.87401,2.24802 70.96802,-11.142 90.90601,-41.34399c-0.01599,-0.034 -0.047,-0.06 -0.06299,-0.09399c-0.892,-1.939 -1.85202,-3.82101 -2.87402,-5.65601c-0.04498,-0.08099 -0.07999,-0.16901 -0.12598,-0.25c-1.05801,-1.88599 -2.186,-3.72501 -3.37402,-5.5c-0.017,-0.02399 -0.047,-0.03799 -0.06299,-0.06201c-1.19,-1.77399 -2.439,-3.526 -3.75,-5.18799c-0.01801,-0.02301 -0.04401,-0.039 -0.06299,-0.06201c-1.311,-1.65997 -2.668,-3.26498 -4.09302,-4.81299c-0.01999,-0.022 -0.043,-0.04099 -0.06299,-0.06299c-2.87701,-3.11801 -5.96402,-5.996 -9.25,-8.65601c-6.62201,-5.358 -14.03201,-9.78302 -21.90601,-13.25c-11.783,-5.18802 -24.65601,-8.241 -37.71899,-9.09399c-4.27,-0.27402 -8.304,-0.289 -12.15601,-0.06201c-1.62399,0.095 -3.12199,0.41101 -4.687,0.59399c-2.243,0.263 -4.541,0.43201 -6.688,0.875c-1.466,0.30099 -2.849,0.83401 -4.28101,1.21899c-2.01599,0.54102 -4.06099,1.01401 -6.03099,1.71802c-1.82401,0.65201 -3.632,1.52298 -5.438,2.31299c-1.612,0.70502 -3.231,1.311 -4.84399,2.125c-1.86101,0.94 -3.77301,2.103 -5.65601,3.18701c-1.513,0.871 -3.024,1.63199 -4.562,2.59399c-2.942,1.841 -5.996,3.952 -9.09401,6.125c-0.41199,0.289 -0.804,0.51801 -1.21899,0.81201c-5.35699,3.79999 -11.58501,8.65298 -17.75,13.40698c-2.229,1.71899 -4.037,2.97202 -6.40601,4.81201c0.017,-0.00101 0.04501,0.00198 0.06201,0c-0.61601,0.479 -1.061,0.79498 -1.68701,1.28101c16.718,-31.733 42.283,-69.54602 81.59401,-111.96802c30.33699,34.79501 47.01399,52.76001 82.718,56.68701c36.87799,4.01498 75.965,-8.423 99,-39.40601c0.082,-0.12299 0.19998,-0.22101 0.28198,-0.34399c-13.97998,-35.30101 -48.68597,-55.983 -85.71899,-60.06201c-4.474,-0.48999 -8.711,-0.679 -12.78101,-0.625c-1.57397,0.01901 -3.03699,0.24501 -4.56299,0.34401c-2.47198,0.162 -4.96899,0.257 -7.34399,0.62399c-1.668,0.257 -3.27301,0.73801 -4.90601,1.09401c-2.05301,0.45 -4.13901,0.83299 -6.15601,1.43799c-2.01401,0.60301 -4.03101,1.40001 -6.03101,2.15601c-1.59,0.601 -3.189,1.149 -4.78198,1.84399c-2.19699,0.959 -4.457,2.11301 -6.68701,3.25c-1.44098,0.73401 -2.88,1.44301 -4.34399,2.25c-2.325,1.283 -4.77699,2.72301 -7.187,4.18701c-1.30301,0.791 -2.63501,1.595 -3.96901,2.43799c-3.77699,2.388 -8.29599,5.483 -12.407,8.28101c25.15401,-25.59399 55.058,-52.614 91.157,-80.875c2.784,-2.18401 5.44,-4.649 7.125,-7.21899c1.58401,0.573 3.06302,1.07999 4.59399,1.625c4.979,1.77499 10.54602,3.82999 15.03101,5.28099c1.785,0.57701 3.46701,1.04201 5.18701,1.563c2.81598,0.854 5.67801,1.744 8.34399,2.437c0.61099,0.159 1.177,0.257 1.78101,0.407c7.68799,1.91 14.89099,3.175 21.90698,3.5c0.02002,0.00101 0.04202,-0.00099 0.06201,0c7.52399,0.34201 14.91901,-0.314 22.625,-2.157c3.854,-0.91899 7.79401,-2.12 11.875,-3.65599c4.16299,-1.57501 8.21399,-3.37401 12.125,-5.40601c27.32101,-14.17599 47.71201,-39.192 50.03101,-70.8438c-30.52802,-23.616 -70.73801,-25.9827 -104,-13.43739c-31.07901,11.7597 -41.742,31.7836 -58.75,68.9692c-3.24301,0.744 -6.621,2.767 -9.78101,5.093c-35.27399,25.85599 -65.123,50.22099 -91.09399,73.28099c25.95399,-43.84999 38.905,-66.912 27.25,-101.312c-11.97101,-35.3012 -43.576,-65.2006 -88.78101,-72.0938z',
+        # Herb emoji: 🌿
+        'bird' = 'path://m146.88901,185.386c-1.33301,20.91 21.23499,39.567 -8.552,37.453c-29.786,-2.114 -94.11541,-32.061 -93.29871,-44.68001c0.8168,-12.62 44.5357,-34.897 74.3227,-32.78299c29.786,2.101 28.87299,19.08699 27.52801,40.00999zm241.67899,203.13899c-2.42599,-0.405 -4.70801,0.19 -6.77399,1.202c-27.92502,2.93701 -38.73401,-23.85898 -38.73401,-23.85898c-5.27301,-4.25302 -11.78299,-25.42902 -19.08499,-15.379l2.246,17.74597c2.246,17.746 30.867,40.80701 30.867,40.80701l-14.59302,20.11301c-4.035,5.55701 -3.026,13.49301 2.246,17.746c5.27301,4.25299 12.80402,3.189 16.83899,-2.367l8.08301,-11.13901l-0.46799,3.15201c-1.04501,6.91101 3.423,13.392 9.98099,14.49301c6.55801,1.10098 12.707,-3.608 13.75201,-10.51901l5.64499,-37.50299c1.021,-6.91101 -3.44699,-13.392 -10.005,-14.49301zm-75.40298,7.88501c-2.354,-0.73401 -4.68402,-0.46802 -6.87,0.228c-28.04501,-1.03799 -35.35901,-29.112 -35.35901,-29.112c-4.685,-4.96201 -8.444,-26.87201 -16.96001,-17.935l-0.036,17.897c-0.036,17.89798 25.40298,44.79498 25.40298,44.79498l-17.01898,17.87201c-4.70801,4.936 -4.72,12.94901 -0.03601,17.89801c4.68399,4.961 12.28702,4.974 16.983,0.03799l9.42801,-9.89902l-0.87601,3.06403c-1.91,6.69498 1.69299,13.746 8.047,15.771c6.353,2.01199 13.05499,-1.785 14.965,-8.48102l10.353,-36.36499c1.94601,-6.70801 -1.65698,-13.758 -8.02298,-15.771zm147.11899,-288.88c-4.60001,-2.152 -9.104,-0.721 -12.61099,3.089c-0.64902,0.708 -50.745,79.817 -174.539,62.578c-4.08401,-0.57001 37.70099,151.48399 38.422,151.408c1.48901,-0.177 36.87299,-4.65802 73.745,-32.315c33.84702,-25.37802 75.47601,-75.83 81.63699,-172.11501c0.336,-5.291 -2.05399,-10.48 -6.65399,-12.645zm-6.38901,182.00101c-2.45099,-4.25299 -7.08698,-7.08801 -11.759,-5.96201c-15.53,3.73401 -38.39798,6.87299 -54.40799,5.73401c-76.35199,-5.41702 -112.43298,-52.26201 -112.80499,-52.65501c-3.30301,-3.569 5.59698,146.21901 9.80099,146.52299c110.42599,7.84702 166.492,-76.28699 168.83401,-79.86899c2.66699,-4.12601 2.79898,-9.505 0.33698,-13.771zm-118.798,-26.479c-4.45599,69.742 15.80603,124.815 -50.37299,120.10599c-66.179,-4.69598 -121.849,-62.27399 -117.39301,-132.02899c4.45601,-69.756 172.23401,-57.81999 167.76599,11.923zm-15.96298,-83.59c-4.23901,66.26199 -47.10501,117.16998 -109.96901,112.702c-62.87599,-4.46799 -110.41479,-61.79401 -106.175,-128.05501c4.24001,-66.2618 58.036,-106.87949 120.91199,-102.41139c48.054,3.4048 98.968,59.2744 95.23201,117.7644zm-175.2,-43.326c0,-13.981 10.75499,-25.315 24.02199,-25.315c13.26601,0 24.02101,11.334 24.02101,25.315c0,13.981 -10.755,25.315 -24.02101,25.315c-13.267,0 -24.02199,-11.334 -24.02199,-25.315zm114.21001,96.905c0,0 91.642,71.489 148.77698,-56.439c4.75601,-10.658 20.23801,10.037 1.189,52.67999c-19.04898,42.64299 -98.18799,81.51399 -144.60898,19.442c-9.789,-13.101 -5.35699,-15.683 -5.35699,-15.683zm-34.25401,-171.3561c0,0 75.01799,3.215 93.65901,-6.0375c18.64099,-9.2526 1.634,37.1115 -39.17902,47.9586c-40.812,10.848 -54.48,-41.9211 -54.48,-41.9211zm25.23399,33.9346c0,0 54.06,1.7214 72.71301,-7.5185c18.65298,-9.2399 1.633,37.112 -39.17902,47.959c-40.82399,10.847 -33.534,-40.4405 -33.534,-40.4405z',
+        # Bird emoji: 🐦
         'reptile' = 'path://m175.714,126.065c-8.83501,0 -28.20201,25.733 -43.83301,11.806c-5.407,-4.808 22.341,-14.663 21.222,-23.141c-0.92099,-6.964 -34.923,-17.43871 -23.03999,-24.0815c11.882,-6.6312 29.713,9.6485 43.16899,9.9355c29.27101,0.631 51.759,-9.7863 52.078,-9.9355c6.649,-3.1435 14.685,-0.5965 17.991,5.6905c3.31801,6.276 0.627,13.917 -5.99699,17.049c-1.61,0.757 -27.342,12.677 -61.59,12.677zm196.34499,325.43701c-48.74799,0 -100.54398,-33.40903 -100.54398,-95.31601c0,-15.76401 -10.93701,-19.056 -20.11601,-19.056c-9.16701,0 -20.104,3.29199 -20.104,19.056c0,61.90698 -51.808,95.31601 -100.54399,95.31601c-48.7364,0 -100.53241,-31.78003 -100.53241,-95.31601c0,-152.496 174.2754,-173.54901 174.2754,-152.496c0,21.052 -93.83501,-12.701 -93.83501,139.79599c0,25.41202 10.937,31.76801 20.104,31.76801c9.179,0 20.116,-3.293 20.116,-19.056c0,-61.896 51.79601,-95.31601 100.545,-95.31601c48.73601,0 100.54399,33.40802 100.54399,95.31601c0,15.763 10.93701,19.056 20.11603,19.056c9.17999,0 20.10397,-3.293 20.10397,-19.056l0,-190.632c0,-44.228 -41.98999,-50.83599 -67.021,-50.83599c0,0 -40.20798,12.712 -80.42799,12.712c-40.22099,0 -53.627,-29.7836 -53.627,-50.8361c-0.02499,-21.0526 53.60201,-38.1241 134.03,-38.1241c80.44,0 147.46201,51.0654 147.46201,127.08419l0,190.62001c0,61.90698 -51.80801,95.31601 -100.54501,95.31601zm-120.64799,-378.60191c0,-6.3362 5.502,-11.4727 12.28902,-11.4727c6.78598,0 12.28799,5.13651 12.28799,11.4727c0,6.3363 -5.50201,11.4728 -12.28799,11.4728c-6.78702,0 -12.28902,-5.13651 -12.28902,-11.4728z',
-        'detritus' = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',   # Leaf emoji: 🍂
-        'unidentified' = 'path://m258.09399,90.625c-77.72499,0 -143.40599,44.38 -143.40599,96.90601c0,17.84299 19.237,32.28099 43,32.28099c23.76199,0 43.03099,-14.438 43.03099,-32.28099c0,-10.76801 22.37001,-32.31201 57.375,-32.31201c43.021,0 71.68701,21.526 71.68701,43.06201c0,43.07199 -77.384,53.77899 -86.03101,53.84399c-23.76199,0 -43.03101,14.47 -43.03101,32.31299l0,43.06201c0,17.84201 19.26901,32.31201 43.03101,32.31201c23.76199,0.00098 43,-14.47 43,-32.31201l0,-14.34399c11.42899,-1.72299 24.18701,-4.28302 37.09399,-8.06201c59.31201,-17.30399 91.96802,-51.39899 91.96802,-96.032c0.00098,-54.03299 -42.99503,-118.437 -157.71802,-118.437zm-14.34399,290.71899c-23.75999,0 -43.03101,14.47101 -43.03101,32.31201c0,17.841 19.27101,32.28198 43.03101,32.28198c23.76001,-0.00098 43,-14.44098 43,-32.28198c0,-17.841 -19.23999,-32.31201 -43,-32.31201z',       # Question mark emoji: ❓
-        'invertebrates' = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z',      # Snail emoji: 🐌
-        'inverte' = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z',           # Snail emoji: 🐌
+        'detritus' = 'path://m452.76999,302.44199c4.13501,-17.08398 2.76001,-35.35797 -5.203,-53.54599c-7.70297,-17.592 -20.98297,-31.504 -37.15997,-40.847c3.61298,-12.905 2.65799,-26.795 -3.681,-40.59799c-9.55402,-20.78601 -30.21802,-34.65401 -53.52902,-38.563c2.82901,-6.192 3.737,-13.954 0.409,-23.46c-11.35999,-32.4782 -56.802,-10.8259 -90.88199,-54.1196c-27.71899,15.8495 -33.74001,39.4071 -32.69499,59.4026c-27.50301,4.461 -43.16901,10.134 -43.16901,10.134l0,0.021c-15.45,5.955 -26.379,20.386 -26.379,37.26401c0,9.51599 3.61299,18.144 9.40599,25.03l-7.86099,2.793l0.01199,0.032c-26.47,9.42999 -45.158,32.21899 -45.158,58.884c0,11.33501 3.409,21.94398 9.316,31.157c-32.0702,13.73901 -54.4613,43.55399 -54.4613,78.40298c0,47.83002 41.9303,86.60901 93.6543,86.60901c37.13699,0 74.51199,-7.61099 108.27499,-18.02499c25.48099,11.259 64.69598,18.02499 123.73599,18.02499c46.009,0 83.30499,-35.54199 83.30499,-79.388c0,-23.55798 -10.827,-44.65799 -27.935,-59.20801zm-267.43298,-83.33899c0,-26.90599 17.802,-48.718 39.761,-48.718c21.95999,0 39.761,21.81201 39.761,48.718c0,26.905 -17.80101,48.71701 -39.761,48.71701c-21.959,0 -39.761,-21.81201 -39.761,-48.71701zm113.603,0c0,-26.90599 17.802,-48.718 39.76099,-48.718c21.95901,0 39.76102,21.81201 39.76102,48.718c0,26.905 -17.802,48.71701 -39.76102,48.71701c-21.95898,0 -39.76099,-21.81201 -39.76099,-48.71701zm-90.882,0c0,-14.948 10.172,-27.06599 22.72101,-27.06599c12.54799,0 22.71999,12.118 22.71999,27.06599c0,14.94701 -10.172,27.065 -22.71999,27.065c-12.54901,0 -22.72101,-12.118 -22.72101,-27.065zm102.24199,0c0,-14.948 10.173,-27.06599 22.72101,-27.06599c12.548,0 22.72101,12.118 22.72101,27.06599c0,14.94701 -10.173,27.065 -22.72101,27.065c-12.548,0 -22.72101,-12.118 -22.72101,-27.065zm-131.245,101.711c-2.79399,-5.33701 0.03401,-9.689 6.28201,-9.689l204.48499,0c6.24802,0 9.077,4.35199 6.28302,9.689c0,0 -29.00302,55.267 -108.52502,55.267c-79.52199,0 -108.52499,-55.267 -108.52499,-55.267zm108.52499,11.96301c-31.47897,0 -58.58499,9.98099 -71.47899,24.42398c16.95,10.33801 40.27199,18.88 71.47899,18.88c31.207,0 54.54102,-8.54199 71.479,-18.88c-12.89398,-14.44299 -40,-24.42398 -71.479,-24.42398z',
+        # Leaf emoji: 🍂
+        'unidentified' = 'path://m258.09399,90.625c-77.72499,0 -143.40599,44.38 -143.40599,96.90601c0,17.84299 19.237,32.28099 43,32.28099c23.76199,0 43.03099,-14.438 43.03099,-32.28099c0,-10.76801 22.37001,-32.31201 57.375,-32.31201c43.021,0 71.68701,21.526 71.68701,43.06201c0,43.07199 -77.384,53.77899 -86.03101,53.84399c-23.76199,0 -43.03101,14.47 -43.03101,32.31299l0,43.06201c0,17.84201 19.26901,32.31201 43.03101,32.31201c23.76199,0.00098 43,-14.47 43,-32.31201l0,-14.34399c11.42899,-1.72299 24.18701,-4.28302 37.09399,-8.06201c59.31201,-17.30399 91.96802,-51.39899 91.96802,-96.032c0.00098,-54.03299 -42.99503,-118.437 -157.71802,-118.437zm-14.34399,290.71899c-23.75999,0 -43.03101,14.47101 -43.03101,32.31201c0,17.841 19.27101,32.28198 43.03101,32.28198c23.76001,-0.00098 43,-14.44098 43,-32.28198c0,-17.841 -19.23999,-32.31201 -43,-32.31201z',
+        # Question mark emoji: ❓
+        'invertebrates' = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z',
+        # Snail emoji: 🐌
+        'inverte' = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z',
+        # Snail emoji: 🐌
         'inver' = 'path://m100.844,109.563c-15.63461,-0.87 -21.8029,26.993 -11.969,26.993c13.521,0 20.639,13.31 17.125,34.457c-27.0613,6.286 -54.9375,28.226 -54.9375,43.379c0,21.10901 12.106,21.097 36.3125,31.651c24.207,10.55399 -12.1033,84.44199 0,126.659c8.8112,30.71201 36.296,63.32901 96.813,63.32901l278.37401,0c12.10397,0 24.21899,0.004 24.21899,-10.55002c0,-7.759 -32.716,-21.207 -64.46899,-31.987c20.86899,-14.332 35.672,-34.51398 42.12598,-57.88599c18.51801,-67.15601 -26.70499,-135.457 -100.81299,-152.24901c-89.48001,-20.29599 -180.55901,29.22701 -202.937,110.356c-1.127,4.08301 -0.826,8.16101 0.562,11.86902c-4.354,-6.263 -4.99899,-14.77802 -1.25,-27.86203c6.756,-23.56598 16.39,-57.51599 2.53101,-82.40999c5.45999,-32.88499 16.72699,-63.063 -2.53101,-79.856c-24.207,-21.1084 -36.322,21.1 -24.21899,21.1c15.556,0 22.644,17.548 14.75,44.502c-4.104,-3.336 -8.94,-6.362 -14.75,-8.895c-4.66,-2.032 -9.90001,-2.82899 -15.37501,-2.862c4.315,-22.16699 6.649,-41.671 -7.312,-53.84499c-4.539,-3.958 -8.642,-5.692 -12.25,-5.893z'              # Snail emoji: 🐌
       )
 
@@ -1811,7 +2171,8 @@ app_server <- function(input, output, session) {
         })
         table_data3(data)
       }
-      if (input$ch1 != 'Conservation Status' && input$ch1 != 'Groups' && input$ch1 != 'Nocturnal or Diurnal') {
+      if (input$ch1 != 'Conservation Status' &&
+          input$ch1 != 'Groups' && input$ch1 != 'Nocturnal or Diurnal') {
         table_data3(hot_to_r(input$editableTable3))
       }
     }
@@ -1825,17 +2186,37 @@ app_server <- function(input, output, session) {
 
   observe({
     if (input$ch1 == 'Groups') {
-      updateSelectInput(inputId = 'ch3',label="Nodes Format", choices = c('Icons','Emoji',"circle",'roundRect','pin','triangle'))
-    }else {
-
-      if (input$ch1 == 'Nocturnal or Diurnal' || input$ch1 == 'Conservation Status') {
-        updateSelectInput(inputId = 'ch3',label="Nodes Format", choices = c('Icons',"circle",'roundRect','pin','triangle'))
+      updateSelectInput(
+        inputId = 'ch3',
+        label = "Nodes Format",
+        choices = c(
+          'Icons',
+          'Emoji',
+          "circle",
+          'roundRect',
+          'pin',
+          'triangle'
+        )
+      )
+    } else {
+      if (input$ch1 == 'Nocturnal or Diurnal' ||
+          input$ch1 == 'Conservation Status') {
+        updateSelectInput(
+          inputId = 'ch3',
+          label = "Nodes Format",
+          choices = c('Icons', "circle", 'roundRect', 'pin', 'triangle')
+        )
       } else {
-        updateSelectInput(inputId = 'ch3', label="Nodes Format", choices = c("circle",'roundRect','pin','triangle'))
+        updateSelectInput(
+          inputId = 'ch3',
+          label = "Nodes Format",
+          choices = c("circle", 'roundRect', 'pin', 'triangle')
+        )
       }
 
     }
   })
+
 
 
 }

@@ -9,14 +9,24 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic
-    ui <- fluidPage(theme = shinytheme("superhero"),
-                    useShinyjs(),
+    ui <- fluidPage(
+      theme = shinytheme("superhero"),
+      useShinyjs(),
 
+      HTML(
+        "<script async src='https://www.googletagmanager.com/gtag/js?id=G-4YNZCFG7M3'></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-4YNZCFG7M3');
+</script>"
+      ),
 
-                    tags$head(
-                      tags$style(
-                        HTML("
+      tags$head(tags$style(
+        HTML(
+          "
         .shiny-notification {
           position: fixed;
           top: 50%;
@@ -70,29 +80,40 @@ app_ui <- function(request) {
         opacity: 1;
         }
 
-      ")
-                      )
-                    ),
+      "
+        )
+      )),
 
-                    tags$style(HTML(
-                      '#controls3 {background-color: #607d8b; border-width:1px; opacity: 0.7; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);}
+      tags$style(
+        HTML(
+          '#controls3 {background-color: #607d8b; border-width:1px; opacity: 0.7; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);}
     #controls3:hover{opacity: 1;}'
-                    )),
-                    tags$style(HTML(
-                      '#controls31 {background-color: #607d8b; border-width:1px; opacity: 0.7; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);} #controls31:hover{opacity: 1;}'
-                    )),
+        )
+      ),
+      tags$style(
+        HTML(
+          '#controls31 {background-color: #607d8b; border-width:1px; opacity: 0.7; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);} #controls31:hover{opacity: 1;}'
+        )
+      ),
 
 
 
-                    tags$head(tags$link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/twemoji@13.0.1/2/twemoji-awesome.css")),
-                    tags$head(tags$link(rel="stylesheet", href="uikit.min.css")),
-                    tags$head(tags$script(src="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit.min.js")),
-                    tags$head(tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css")),
+      tags$head(
+        tags$link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/twemoji@13.0.1/2/twemoji-awesome.css")
+      ),
+      tags$head(tags$link(rel = "stylesheet", href = "uikit.min.css")),
+      tags$head(
+        tags$script(src = "https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit.min.js")
+      ),
+      tags$head(
+        tags$link(rel = "stylesheet", href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css")
+      ),
 
 
 
 
-                    HTML("
+      HTML(
+        "
 
   <style>
   .uk-height-large {
@@ -269,205 +290,261 @@ function update() {
   <div class='uk-3d-network'></div>
   <div class='uk-width-1-2@m uk-text-center uk-margin-auto uk-margin-auto-vertical'>
   <canvas id='canvas' style='position: absolute; top: 0; left: 0; z-index: -1;' uk-parallax='scale: 1, 20'; image-rendering: optimizeQuality;></canvas>
-  <p class='custom-font-size' uk-parallax='opacity: 0,1;start: 300%; end: 200%; y: 100,100; scale: 2,1; viewport: 0.5;color: white;'>Food Webs A.I.</p>
+  <p class='custom-font-size' uk-parallax='opacity: 0,1;start: 300%; end: 200%; y: 100,100; scale: 2,1; viewport: 0.5;color: white;'>Food Web A.I.</p>
   </div>
   </div>
 
   "),
 
 
-                    tags$ul(
-                      class = "uk-flex-center uk-tab uk-background-default uk-margin-remove",
-                      `uk-switcher`='animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium',
-                      tags$li(id="aqui4",class='action-button',
-                              class='uk-active',
-                              tags$a(id = 'aqui4',class='action-button',
-                                     HTML("<p style='font-size: 14px;'>Introduction</p>"))
-                      ),
-                      tags$li(id = 'aqui3',class='action-button',
-                              tags$a(id = 'aqui3',class='action-button',
-                                     HTML("<p style='font-size: 14px;'>Food Web</p>"))
-                      ),
-                      tags$li(id = 'aqui5',class='action-button',
-                              tags$a(id = 'aqui3',class='action-button',
-                                     HTML("<p style='font-size: 14px;'>About</p>"))
-                      )
-                    ),
+      tags$ul(
+        class = "uk-flex-center uk-tab uk-background-default uk-margin-remove",
+        `uk-switcher` = 'animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium',
+        tags$li(
+          id = "aqui4",
+          class = 'action-button uk-active',  # Combined class names
+          tags$a(
+            id = 'aqui4',
+            class = 'action-button',
+            HTML("<p style='font-size: 14px;'>Introduction</p>")
+          )
+        ),
+        tags$li(
+          id = 'aqui3',
+          class = 'action-button',  # Only one class attribute
+          tags$a(
+            id = 'aqui3',
+            class = 'action-button',
+            HTML("<p style='font-size: 14px;'>Food Web</p>")
+          )
+        ),
+        tags$li(
+          id = 'aqui5',
+          class = 'action-button',  # Only one class attribute
+          tags$a(
+            id = 'aqui5',
+            class = 'action-button',
+            HTML("<p style='font-size: 14px;'>About</p>")
+          )
+        )
+      ),
 
-                    tags$ul(
-                      class='uk-switcher uk-margin-remove',
-                      tags$li(
+      tags$div(
+        class = 'uk-switcher uk-margin-remove',
+        tags$div(
+          tags$div(
+            class = "uk-section uk-padding-remove-bottom uk-padding-remove-top",
 
-                        tags$div(
-                          class = "uk-section uk-padding-remove-bottom uk-padding-remove-top",
+            # Hero Section
+            tags$div(
+              class = "uk-height-large uk-background-cover uk-overflow-hidden uk-height-medium uk-panel uk-flex uk-flex-center uk-flex-middle uk-margin-remove",
+              tags$div(class = "uk-3d-network"),
+              tags$div(
+                class = "uk-width-1-2@m uk-text-center uk-margin-auto uk-margin-auto-vertical uk-light",
+                tags$h1("AI-Driven Interactive Food Webs"),
+                tags$p(
+                  "Harness the power of Artificial Intelligence to explore intricate ecosystem connections.",
+                  style = "font-size: 18px;"
+                ),
+                tags$p(
+                  "Automatically generate entire food webs using just a species list or search for pre-existing webs based on your input.",
+                  style = "font-size: 18px;"
+                ),
+                tags$p(
+                  "Join us on a journey to uncover deeper insights into food webs and ecosystem dynamics.",
+                  style = "font-size: 18px;"
+                )
+              )
+            ),
 
-                          # Hero Section
-                          tags$div(
-                            class = "uk-height-large uk-background-cover uk-overflow-hidden uk-height-medium uk-panel uk-flex uk-flex-center uk-flex-middle uk-margin-remove",
-                            tags$div(
-                              class = "uk-3d-network"
-                            ),
-                            tags$div(
-                              class = "uk-width-1-2@m uk-text-center uk-margin-auto uk-margin-auto-vertical uk-light",
-                              tags$h1("Interactive Food-Webs"),
-                              tags$p("Explore the intricate connections in ecosystems using interactive food webs", style = "font-size: 18px;"),
-                              tags$p("Uncover the flow of energy and matter between species, and discover the hidden secrets of nature's intricate networks.", style = "font-size: 18px;"),
-                              tags$p("Join us on this fascinating journey of understanding the complex world of food webs and ecosystem dynamics.", style = "font-size: 18px;")
-                            )
-                          ),
+            # Cards Section (Using Grid)
+            tags$div(
+              class = "uk-grid uk-child-width-1-2@s uk-child-width-1-3@m uk-margin-top uk-grid-match",
+              tags$div(
+                class = "uk-card uk-card-default uk-card-body uk-card-hover uk-card-secondary uk-background-blend-multiply uk-transition-toggle uk-margin-bottom",
+                tags$div(
+                  class = "uk-icon uk-flex uk-flex-center uk-margin-bottom",
+                  tags$i(class = "fas fa-globe fa-2x", style = "color: darkgray;")
+                ),
+                tags$h3("Welcome to FoodWebAI", style = "font-size: 22px;"),
+                tags$p(
+                  "Understanding species interactions is crucial in ecosystems. FoodWebAI helps visualize these intricate relationships using interactive charts, powered by AI.",
+                  style = "font-size: 18px;"
+                ),
+                tags$p(
+                  "Whether you want to build a new food web from scratch using a species list or explore existing networks, FoodWebAI has you covered.",
+                  style = "font-size: 18px;"
+                )
+              ),
 
-                          # Cards Section (Using Grid)
-                          tags$div(
-                            class = "uk-grid uk-child-width-1-2@s uk-child-width-1-3@m uk-margin-top uk-grid-match",
-                            tags$div(
-                              class = "uk-card uk-card-default uk-card-body uk-card-hover uk-card-secondary uk-background-blend-multiply uk-transition-toggle uk-margin-bottom",
-                              tags$div(
-                                class = "uk-icon uk-flex uk-flex-center uk-margin-bottom",
-                                tags$i(class = "fas fa-globe fa-2x", style = "color: darkgray;")
-                              ),
-                              tags$h3("Welcome to Food Web A.I.", style = "font-size: 22px;"),
-                              tags$p("In the complex world of ecosystems, understanding the interactions between different species is crucial. A food web is a powerful representation that
-                   captures the intricate connections between various organisms in an ecosystem.", style = "font-size: 18px;"),
-                              tags$p("The 'Food Web A.I.' web application is designed to help you explore and visualize
-                   these connections using interactive and dynamic charts.", style = "font-size: 18px;")
-                            ),
+              tags$div(
+                class = "uk-card uk-card-default uk-card-body uk-card-hover uk-card-secondary uk-background-blend-multiply uk-transition-toggle uk-margin-bottom",
+                tags$div(
+                  class = "uk-icon uk-flex uk-flex-center uk-margin-bottom",
+                  tags$i(class = "fas fa-book fa-2x", style = "color: darkgray;")
+                ),
+                tags$h3("Why Study Food Webs?", style = "font-size: 22px;"),
+                tags$p(
+                  "Food webs offer valuable insights into energy flow and species interactions. With FoodWebAI, explore these connections to understand ecosystem stability and resilience.",
+                  style = "font-size: 18px;"
+                )
+              ),
 
-                            tags$div(
-                              class = "uk-card uk-card-default uk-card-body uk-card-hover uk-card-secondary uk-background-blend-multiply uk-transition-toggle uk-margin-bottom",
-                              tags$div(
-                                class = "uk-icon uk-flex uk-flex-center uk-margin-bottom",
-                                tags$i(class = "fas fa-book fa-2x", style = "color: darkgray;")
-                              ),
-                              tags$h3("Why study food webs?", style = "font-size: 22px;"),
-                              tags$p("Food webs provide valuable insights into the flow of energy and matter within an ecosystem.
-                   By analyzing the relationships between predators, prey, and other species, scientists can better
-                   understand the stability and resilience of ecosystems.", style = "font-size: 18px;")
-                            ),
+              tags$div(
+                class = "uk-card uk-card-default uk-card-body uk-card-hover uk-card-secondary uk-background-blend-multiply uk-transition-toggle uk-margin-bottom",
+                tags$div(
+                  class = "uk-icon uk-flex uk-flex-center uk-margin-bottom",
+                  tags$i(class = "fas fa-robot fa-2x", style = "color: darkgray;")
+                ),
+                tags$h3("AI for Deeper Insights", style = "font-size: 22px;"),
+                tags$p(
+                  "Take your analysis to the next level with the power of Artificial Intelligence! The FoodWebAI app employs Large Language Models to extract valuable insights from your data.",
+                  style = "font-size: 18px;"
+                ),
+                tags$p(
+                  "Leveraging OpenAI’s GPT models, you can gain a deeper understanding of ecosystem structures, trophic interactions, and even predict potential impacts of environmental changes.",
+                  style = "font-size: 18px;"
+                )
+              )
+            ),
+            br(),
+            br(),
+            br(),
 
-                            tags$div(
-                              class = "uk-card uk-card-default uk-card-body uk-card-hover uk-card-secondary uk-background-blend-multiply uk-transition-toggle uk-margin-bottom",
-                              tags$div(
-                                class = "uk-icon uk-flex uk-flex-center uk-margin-bottom",
-                                tags$i(class = "fas fa-robot fa-2x", style = "color: darkgray;")
-                              ),
-                              tags$h3("Using A.I. for Deeper Insights", style = "font-size: 22px;"),
-                              tags$p("Take your analysis to the next level with the power of Artificial Intelligence!
-                   The 'Food Web A.I.' app employs advanced A.I. algorithms to extract valuable
-                   insights from your uploaded data.", style = "font-size: 18px;"),
-                              tags$p("Leveraging A.I. technology, you can gain a deeper understanding of ecosystem
-                   structures, trophic interactions, and even predict potential impacts of environmental
-                   changes on food webs.", style = "font-size: 18px;")
-                            )
-                          ),
-                          br(),
-                          br(),
-                          br(),
+            # Call-to-Action Card
+            tags$div(
+              class = "uk-card uk-card-default uk-card-body uk-card-hover uk-background-blend-multiply uk-opacity-80 uk-transition-toggle",
+              style = "background-color: darkblue; color: white;",
+              tags$p("Join us in exploring ecosystems!"),
+              tags$p(
+                "Click the 'Food Web' tab to upload your data and begin visualizing the complex interactions between species. Experiment with different settings to uncover hidden patterns in ecosystems."
+              ),
+              tags$p(
+                "Let’s embark on a journey to discover the hidden dynamics of nature's food webs together!"
+              )
+            )
+          ),
+          br(),
+          br(),
+          br(),
+          br(),
+          br(),
+          br(),
+          br(),
+          br()
+        ),
 
-                          # Call-to-Action Card
-                          tags$div(
-                            class = "uk-card uk-card-default uk-card-body uk-card-hover uk-background-blend-multiply uk-opacity-80 uk-transition-toggle",
-                            style = "background-color: darkblue; color: white;",
-                            tags$p("Join us on this ecosystem exploration!"),
-                            tags$p("Click on the 'Food Web' tab to upload your data and begin visualizing the complex interactions between species. Feel free to experiment with different settings and uncover hidden patterns in ecosystems."),
-                            tags$p("Let's embark on a journey to discover the hidden secrets of nature's food webs together!")
-                          )
-                        ),
-                        br(),
-                        br(),
-                        br(),
-                        br(),
-                        br(),
-                        br(),
-                        br(),
-                        br()
-
-                      ),
-
-                      tags$li(
-                        conditionalPanel(condition="input.aqui3>0",
-
-
-                                         absolutePanel(
-                                           id = "controls31",
-                                           class = "panel panel-default",
-                                           fixed = FALSE,
-                                           draggable = TRUE,
-                                           top = 510,
-                                           left = 'auto',
-                                           right = "2%",
-                                           bottom = "auto",
-                                           width = "50%",
-                                           height = "auto",
-                                           style = "z-index: 1000; padding: 10px 10px 10px 10px; display:none;",
-                                           tags$div(id = 'close_1',
-                                                    class = "action-button",
-                                                    shiny::icon("circle-xmark", style = "float: right;")),
-                                           br(),
-                                           div(style="display: inline-block;vertical-align:top; width: 300px;",
-                                               tags$div(
-                                                 class = "uk-card uk-card-default uk-card-body zoom-effect",
-                                                 style = "margin: 0px; padding: 10px; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);",
-                                                 HTML("<center><p style = font-size: 30px; color: white;>Connectance</p></center>"),
-                                                 echarts4rOutput('text1'))),
-                                           div(style="display: inline-block;vertical-align:top;",br()),
-                                           div(style="display: inline-block;vertical-align:top; width: 300px;",
-                                               tags$div(
-                                                 class = "uk-card uk-card-default uk-card-body zoom-effect",
-                                                 style = "margin: 0px; padding: 10px; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);",
-
-                                                 HTML("<center><p style = font-size: 30px; color: white;>Energy transfer per Trophic level</p></center>"),
-                                                 echarts4rOutput('text2')))
-
-                                         ),
+        tags$div(
+          conditionalPanel(
+            condition = "input.aqui3>0",
 
 
+            absolutePanel(
+              id = "controls31",
+              class = "panel panel-default",
+              fixed = FALSE,
+              draggable = TRUE,
+              top = 510,
+              left = 'auto',
+              right = "2%",
+              bottom = "auto",
+              width = "50%",
+              height = "auto",
+              style = "z-index: 1000; padding: 10px 10px 10px 10px; display:none;",
+              tags$div(
+                id = 'close_1',
+                class = "action-button",
+                shiny::icon("circle-xmark", style = "float: right;")
+              ),
+              br(),
+              div(
+                style = "display: inline-block;vertical-align:top; width: 300px;",
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body zoom-effect",
+                  style = "margin: 0px; padding: 10px; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);",
+                  HTML(
+                    "<center><p style = font-size: 30px; color: white;>Connectance</p></center>"
+                  ),
+                  echarts4rOutput('text1')
+                )
+              ),
+              div(style = "display: inline-block;vertical-align:top;", br()),
+              div(
+                style = "display: inline-block;vertical-align:top; width: 300px;",
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body zoom-effect",
+                  style = "margin: 0px; padding: 10px; border-radius: 10px !important; box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.5);",
 
-                                         absolutePanel(
-                                           id = "controls3",
-                                           class = "panel panel-default",
-                                           fixed = FALSE,
-                                           draggable = TRUE,
-                                           top = 510,
-                                           left = '2%',
-                                           right = "auto",
-                                           bottom = "auto",
-                                           width = "auto",
-                                           height = "auto",
-                                           style = "z-index: 1000; padding: 10px 10px 10px 10px;",
+                  HTML(
+                    "<center><p style = font-size: 30px; color: white;>Energy transfer per Trophic level</p></center>"
+                  ),
+                  echarts4rOutput('text2')
+                )
+              )
+
+            ),
 
 
 
-                                           tags$div(
-                                             class = "uk-card uk-card-default uk-card-body",
-                                             style = "margin: 0px; padding: 10px;",
-                                             actionButton(inputId = "help1",
-                                                          label = NULL,
-                                                          icon = shiny::icon("circle-question", style = "color:black;"),
-                                                          style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"),
-                                             br(),
-                                             tags$div(
-                                               onclick = "toggleCollapse()",
-                                               tags$h3(
-                                                 class = "uk-card-title",
-                                                 HTML('<b>First - Data type:</b>'),
-                                                 shiny::icon("caret-down", style = "float: right;")
-                                               )
-                                             ),
-                                             HTML('<hr>'),
-
-                                             div(id = "collapseDiv", style = "display: block;",
-                                                 p(
-                                                   HTML('Choose the data format<br> you wish to upload.'),
-                                                   class = 'uk-text-large uk-text-center', style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                 ),
-                                                 HTML('<hr>'),# Changed "none" to "block"
-                                                 selectInput('ch5', "Data input format", choices = c('', 'Manual' = 'Free', 'A.I. FoodWeb' = "Generative Chart", 'Regular', 'Ecopath'))
-                                             )
-                                           ),
+            absolutePanel(
+              id = "controls3",
+              class = "panel panel-default",
+              fixed = FALSE,
+              draggable = TRUE,
+              top = 510,
+              left = '2%',
+              right = "auto",
+              bottom = "auto",
+              width = "auto",
+              height = "auto",
+              style = "z-index: 1000; padding: 10px 10px 10px 10px;",
 
 
-                                           tags$script(
-                                             'document.getElementById("ch5").onchange = function() {
+
+              tags$div(
+                class = "uk-card uk-card-default uk-card-body",
+                style = "margin: 0px; padding: 10px;",
+                actionButton(
+                  inputId = "help1",
+                  label = NULL,
+                  icon = shiny::icon("circle-question", style = "color:black;"),
+                  style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"
+                ),
+                br(),
+                tags$div(onclick = "toggleCollapse()", tags$h3(
+                  class = "uk-card-title",
+                  HTML('<b>First - Data type:</b>'),
+                  shiny::icon("caret-down", style = "float: right;")
+                )),
+                HTML('<hr>'),
+
+                div(
+                  id = "collapseDiv",
+                  style = "display: block;",
+                  p(
+                    HTML('Choose the data format<br> you wish to upload.'),
+                    class = 'uk-text-large uk-text-center',
+                    style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                  ),
+                  HTML('<hr>'),
+                  # Changed "none" to "block"
+                  selectInput(
+                    'ch5',
+                    "Data input format",
+                    choices = c(
+                      '',
+                      'Manual' = 'Free',
+                      'A.I. FoodWeb' = "Generative Chart",
+                      'Regular',
+                      'Ecopath'
+                    )
+                  )
+                )
+              ),
+
+
+              tags$script(
+                'document.getElementById("ch5").onchange = function() {
   var x = document.getElementById("collapseDiv");
   x.style.display = "none";
 };
@@ -485,54 +562,80 @@ function toggleCollapse() {
 
 
 
-                                           conditionalPanel(condition = "input.ch5 == 'Ecopath' || input.ch5 == 'Regular'",
-                                                            br(),
+              conditionalPanel(
+                condition = "input.ch5 == 'Ecopath' || input.ch5 == 'Regular'",
+                br(),
 
 
-                                                            tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                     style="margin: 0px; padding: 10px;",
-                                                                     actionButton(inputId = "help2",
-                                                                                  label = NULL,
-                                                                                  icon = shiny::icon("circle-question", style = "color:black;"),
-                                                                                  style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"),
-                                                                     br(),
-                                                                     tags$div(
-                                                                       onclick = "toggleCollapse2()",
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body",
+                  style = "margin: 0px; padding: 10px;",
+                  actionButton(
+                    inputId = "help2",
+                    label = NULL,
+                    icon = shiny::icon("circle-question", style = "color:black;"),
+                    style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"
+                  ),
+                  br(),
+                  tags$div(
+                    onclick = "toggleCollapse2()",
 
 
-                                                                       tags$h3(class="uk-card-title", HTML('<b>Second -  Upload Files<b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                       HTML('<hr>')),
-                                                                     tags$div(id = "collapseDiv2",
-                                                                              conditionalPanel(condition = "input.ch5 == 'Ecopath'",
-                                                                                               p(
-                                                                                                 HTML('Export from Ecopath the csv files:<br><b>Basic Estimates</b> and <b>Consumption</b>.<br> Upload them below:'),
-                                                                                                 class = 'uk-text-large uk-text-center', style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                                                               )),
-                                                                              conditionalPanel(condition = "input.ch5 == 'Regular'",
-                                                                                               p(
-                                                                                                 HTML('Upload the csv files:<br><b>Basic Estimates</b> and <b>Consumption</b>.<br>'),
-                                                                                                 class = 'uk-text-large uk-text-center', style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                                                               ),
-                                                                                               div(class = "uk-flex uk-flex-center",
+                    tags$h3(
+                      class = "uk-card-title",
+                      HTML('<b>Second -  Upload Files<b>'),
+                      shiny::icon("caret-down", style = "float: right;")
+                    ),
+                    HTML('<hr>')
+                  ),
+                  tags$div(
+                    id = "collapseDiv2",
+                    conditionalPanel(
+                      condition = "input.ch5 == 'Ecopath'",
+                      p(
+                        HTML(
+                          'Export from Ecopath the csv files:<br><b>Basic Estimates</b> and <b>Consumption</b>.<br> Upload them below:'
+                        ),
+                        class = 'uk-text-large uk-text-center',
+                        style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                      )
+                    ),
+                    conditionalPanel(
+                      condition = "input.ch5 == 'Regular'",
+                      p(
+                        HTML(
+                          'Upload the csv files:<br><b>Basic Estimates</b> and <b>Consumption</b>.<br>'
+                        ),
+                        class = 'uk-text-large uk-text-center',
+                        style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                      ),
+                      div(
+                        class = "uk-flex uk-flex-center",
 
-                                                                                                   downloadButton("downloadZipBtn", "Download Example", class = "small-btn"))
+                        downloadButton("downloadZipBtn", "Download Example", class = "small-btn")
+                      )
 
 
 
-                                                                              ),
-                                                                              HTML('<hr>'),
-                                                                              conditionalPanel(condition = "input.ch5 == 'Ecopath'",
-                                                                                               fileInput("file1", "Upload Ecopath Basic_estimates csv file"),
-                                                                                               fileInput("file2", "Upload Ecopath Consumption csv file")),
-                                                                              conditionalPanel(condition = "input.ch5 == 'Regular'",
-                                                                                               fileInput("file1R", "Upload Basic_estimates csv file"),
-                                                                                               fileInput("file2R", "Upload Consumption csv file"))
+                    ),
+                    HTML('<hr>'),
+                    conditionalPanel(
+                      condition = "input.ch5 == 'Ecopath'",
+                      fileInput("file1", "Upload Ecopath Basic_estimates csv file"),
+                      fileInput("file2", "Upload Ecopath Consumption csv file")
+                    ),
+                    conditionalPanel(
+                      condition = "input.ch5 == 'Regular'",
+                      fileInput("file1R", "Upload Basic_estimates csv file"),
+                      fileInput("file2R", "Upload Consumption csv file")
+                    )
 
 
-                                                                     )),
+                  )
+                ),
 
-                                                            tags$script(
-                                                              'document.getElementById("file2").onchange = function() {
+                tags$script(
+                  'document.getElementById("file2").onchange = function() {
   var x = document.getElementById("collapseDiv2");
   x.style.display = "none";
 };
@@ -547,58 +650,153 @@ function toggleCollapse2() {
 '),
 
 
-                                                            conditionalPanel(
-                                                              condition = "output.filesUploaded",
-                                                              br(),
-                                                              tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                       style="margin: 0px; padding: 10px;",
+                conditionalPanel(
+                  condition = "output.filesUploaded",
+                  br(),
+                  tags$div(
+                    class = "uk-card uk-card-default uk-card-body",
+                    style = "margin: 0px; padding: 10px;",
 
-                                                                       br(),
-                                                                       tags$div(
-                                                                         onclick = "toggleCollapse3()",
-                                                                         tags$h3(class="uk-card-title", HTML('<b>Third - Adjust Chart</b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                         HTML("<hr>")),
-                                                                       tags$div(id = "collapseDiv3",
-                                                                                p(
-                                                                                  HTML('Choose the type of chart; theme;<br> node format and size;<br> and font-size'),
-                                                                                  class = 'uk-text-large uk-text-center', style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                                                ),
-                                                                                HTML("<hr>"),
-                                                                                selectInput('ch6',"Choose the Chart Type", choices = c('FoodWeb'='none','Circular'='circular', 'Force'='force')),
+                    br(),
+                    tags$div(
+                      onclick = "toggleCollapse3()",
+                      tags$h3(
+                        class = "uk-card-title",
+                        HTML('<b>Third - Adjust Chart</b>'),
+                        shiny::icon("caret-down", style = "float: right;")
+                      ),
+                      HTML("<hr>")
+                    ),
+                    tags$div(
+                      id = "collapseDiv3",
+                      p(
+                        HTML(
+                          'Choose the type of chart; theme;<br> node format and size;<br> and font-size'
+                        ),
+                        class = 'uk-text-large uk-text-center',
+                        style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                      ),
+                      HTML("<hr>"),
+                      selectInput(
+                        'ch6',
+                        "Choose the Chart Type",
+                        choices = c(
+                          'FoodWeb' = 'none',
+                          'Circular' = 'circular',
+                          'Force' = 'force'
+                        )
+                      ),
 
-                                                                                selectInput('ch2',"Choose the chart Theme", choices = c('dark','vintage', 'chalk','dark-blue','dark-bold','dark-digerati','dark-fresh-cut',
-                                                                                                                                        'dark-mushroom','halloween', 'purple-passion',
-                                                                                                                                        'walden','wef','weforum','westeros','wonderland')),
-                                                                                selectInput('ch3',"Nodes Format", choices = c("circle", "square",'roundRect','pin','triangle','Icons', 'Emoji')),
-                                                                                sliderInput('ch4','Node Size',min=0, max=3, step=0.1, value=2),
-                                                                                sliderInput('fontsize','Font-Size',min=3, max=30, step=1, value=8),
-                                                                                sliderInput('ch20','Zoom',min=0, max=2, step=0.2, value=0),
-                                                                                actionButton('ch21', 'Show Indexes'),
+                      selectInput(
+                        'ch2',
+                        "Choose the chart Theme",
+                        choices = c(
+                          'dark',
+                          'vintage',
+                          'chalk',
+                          'dark-blue',
+                          'dark-bold',
+                          'dark-digerati',
+                          'dark-fresh-cut',
+                          'dark-mushroom',
+                          'halloween',
+                          'purple-passion',
+                          'walden',
+                          'wef',
+                          'weforum',
+                          'westeros',
+                          'wonderland'
+                        )
+                      ),
+                      selectInput(
+                        'ch3',
+                        "Nodes Format",
+                        choices = c(
+                          "circle",
+                          "square",
+                          'roundRect',
+                          'pin',
+                          'triangle',
+                          'Icons',
+                          'Emoji'
+                        )
+                      ),
+                      sliderInput(
+                        'ch4',
+                        'Node Size',
+                        min = 0,
+                        max = 3,
+                        step = 0.1,
+                        value = 2
+                      ),
+                      sliderInput(
+                        'fontsize',
+                        'Font-Size',
+                        min = 3,
+                        max = 30,
+                        step = 1,
+                        value = 8
+                      ),
+                      sliderInput(
+                        'ch20',
+                        'Zoom',
+                        min = 0,
+                        max = 2,
+                        step = 0.2,
+                        value = 0
+                      ),
+                      actionButton('ch21', 'Show Indexes'),
 
 
-                                                                                HTML("<hr>"),
-                                                                                p(
-                                                                                  HTML('Update the FoodWeb with A.I. generated groups.<br>
-                                  Only <b>Trophic Position</b> is not A.I generated.'),
-                                                                                  class = 'uk-text-large uk-text-center', style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                                                ),
-                                                                                p(
-                                                                                  HTML('<b>Caution: AI-generated results may contain uncertainties.<br>
-                                  Verify and cross-check the data<br>
-                                  before making critical decisions.</b>'),
-                                                                                  class = 'uk-text-large uk-text-center', style = 'font-size: 12px; color: red; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                                                ),
-                                                                                HTML("<hr>"),
+                      HTML("<hr>"),
+                      p(
+                        HTML(
+                          'Update the FoodWeb with A.I. generated groups.<br>
+                                  Only <b>Trophic Position</b> is not A.I generated.'
+                        ),
+                        class = 'uk-text-large uk-text-center',
+                        style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                      ),
+                      p(
+                        HTML(
+                          '<b>Caution: AI-generated results may contain uncertainties<br>
+and are meant for exploratory purposes only.<br>
+They should not be relied upon for any decisions<br>
+(management, political, etc.) or as scientific evidence.</b><br><br>
+*Note: All data uploaded will be passed<br>
+to the OpenAI API. By uploading data, you<br>
+agree with OpenAI\'s policy. According to<br>
+                                    the company documentation, no data passed<br>
+                                    via the API will be used to train any models.<br>
+                                    We recommend users to exercise caution and avoid<br>
+                                    uploading unpublished or sensitive information unless<br>
+                                    they are confident in these assurances.<br>
+                                    For more information, visit: <a href="https://platform.openai.com/docs/models/how-we-use-your-data" target="_blank">OpenAI Data Usage</a>.'
+                        ),
+                        class = 'uk-text-large uk-text-center',
+                        style = 'font-size: 12px; color: red; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                      ),
+                      HTML("<hr>"),
 
-                                                                                selectInput('ch1',"Categories", choices = c("Trophic Position", "Groups",
-                                                                                                                            'Nocturnal or Diurnal',
-                                                                                                                            'Niche and Habitat (Ocean)',
-                                                                                                                            'Niche and Habitat (River)',
-                                                                                                                            'Migration Patterns',
-                                                                                                                            'Conservation Status')),
-                                                                                br()
-                                                                       ))),
-                                                            tags$script('function toggleCollapse3() {
+                      selectInput(
+                        'ch1',
+                        "Categories",
+                        choices = c(
+                          "Standard"="Trophic Position",
+                          "Groups",
+                          'Nocturnal or Diurnal',
+                          'Niche and Habitat (Ocean)',
+                          'Niche and Habitat (River)',
+                          'Migration Patterns',
+                          'Conservation Status'
+                        )
+                      ),
+                      br()
+                    )
+                  )
+                ),
+                tags$script(
+                  'function toggleCollapse3() {
   var x = document.getElementById("collapseDiv3");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -609,38 +807,61 @@ function toggleCollapse2() {
 '),
 
 
-                                                            conditionalPanel(
-                                                              condition = "output.filesUploaded",
-                                                              br(),
-                                                              tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                       style="margin: 0px; padding: 10px; overflow-y: auto;",
+                conditionalPanel(
+                  condition = "output.filesUploaded",
+                  br(),
+                  tags$div(
+                    class = "uk-card uk-card-default uk-card-body",
+                    style = "margin: 0px; padding: 10px; overflow-y: auto;",
 
-                                                                       br(),
-                                                                       tags$div(id = 'fourth', class = 'action-button',
-                                                                                onclick = "toggleCollapse3_1()",
-                                                                                tags$h3(class="uk-card-title", HTML('<b>Fourth - Look and Review your data:</b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                                HTML("<hr>")),
-                                                                       conditionalPanel(condition = 'input.fourth > 0',
-                                                                                        tags$div(id = "collapseDiv3_1",
-                                                                                                 style="display: none;",
-                                                                                                 tags$div(
-                                                                                                   class = "uk-container",
-                                                                                                   tags$div(
-                                                                                                     class = "uk-grid",
-                                                                                                     tags$div(class="uk-width-1-2",
-                                                                                                              tags$h3(HTML('<center><b>Basic Estimates</b></center>')),
-                                                                                                              rHandsontableOutput("editableTable3")
-                                                                                                     ),
-                                                                                                     tags$div(class="uk-width-1-2",
-                                                                                                              tags$h3(HTML('<center><b>Consumption</b></center>')),
-                                                                                                              rHandsontableOutput("editableTable4")
-                                                                                                     )
-                                                                                                   ),
+                    br(),
+                    tags$div(
+                      id = 'fourth',
+                      class = 'action-button',
+                      onclick = "toggleCollapse3_1()",
+                      tags$h3(
+                        class = "uk-card-title",
+                        HTML('<b>Fourth - Look and Review your data:</b>'),
+                        shiny::icon("caret-down", style = "float: right;")
+                      ),
+                      HTML("<hr>")
+                    ),
+                    conditionalPanel(
+                      condition = 'input.fourth > 0',
+                      tags$div(
+                        id = "collapseDiv3_1",
+                        style = "display: none;",
+                        tags$div(
+                          class = "uk-container",
+                          tags$div(
+                            class = "uk-flex uk-flex-between uk-flex-middle",
+                            tags$div(class = "uk-width-expand"),
+                            downloadBttn("dwntable2", label = "", color = "warning")
+                          )
+                        ),
+                        tags$div(class = "uk-container", tags$div(
+                          class = "uk-grid",
+                          tags$div(
+                            class = "uk-width-1-2",
+                            tags$h3(HTML(
+                              '<center><b>Basic Estimates</b></center>'
+                            )),
+                            rHandsontableOutput("editableTable3")
+                          ),
+                          tags$div(
+                            class = "uk-width-1-2",
+                            tags$h3(HTML('<center><b>Consumption</b></center>')),
+                            rHandsontableOutput("editableTable4")
+                          )
+                        ), )
 
-                                                                                                 )))
+                      )
+                    )
 
-                                                              )),
-                                                            tags$script('function toggleCollapse3_1() {
+                  )
+                ),
+                tags$script(
+                  'function toggleCollapse3_1() {
   var x = document.getElementById("collapseDiv3_1");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -651,47 +872,55 @@ function toggleCollapse2() {
 '),
 
 
-                                           ),
-                                           conditionalPanel(condition = "input.ch5 == 'Free'",
-                                                            br(),
-                                                            tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                     style="margin: 0px; padding: 10px; overflow-y: auto;",
-                                                                     actionButton(inputId = "help3",
-                                                                                  label = NULL,
-                                                                                  icon = shiny::icon("circle-question", style = "color:black;"),
-                                                                                  style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"),
-                                                                     br(),
-                                                                     tags$div(
-                                                                       onclick = "toggleCollapse4()",
-                                                                       tags$h3(class="uk-card-title", HTML('<b>Second - Fill the table below:</b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                       HTML("<hr>")),
-                                                                     tags$div(id = "collapseDiv4",
-                                                                              tags$div(
-                                                                                class = "uk-container",
-                                                                                tags$div(
-                                                                                  class = "uk-grid",
-                                                                                  tags$div(class="uk-width-1-2",
-                                                                                           tags$h3(HTML('<center><b>Basic Estimates</b></center>')),
-                                                                                           rHandsontableOutput("editableTable1")
-                                                                                  ),
-                                                                                  tags$div(class="uk-width-1-2",
-                                                                                           tags$h3(HTML('<center><b>Consumption</b></center>')),
-                                                                                           rHandsontableOutput("editableTable2")
-                                                                                  )
-                                                                                ),
-                                                                                tags$div(
-                                                                                  class = "uk-grid",
-                                                                                  tags$div(
-                                                                                    class = "uk-width-1-2 uk-flex uk-flex-center",
-                                                                                    actionButton("addRowBtn1", "Add Row (Table 1)")
-                                                                                  ),
-                                                                                  tags$div(
-                                                                                    class = "uk-width-1-2 uk-flex uk-flex-center",
-                                                                                    actionButton("addRowBtn2", "Add Row (Table 2)")
-                                                                                  )
-                                                                                )
-                                                                              ))),
-                                                            tags$script('function toggleCollapse4() {
+              ),
+              conditionalPanel(
+                condition = "input.ch5 == 'Free'",
+                br(),
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body",
+                  style = "margin: 0px; padding: 10px; overflow-y: auto;",
+                  actionButton(
+                    inputId = "help3",
+                    label = NULL,
+                    icon = shiny::icon("circle-question", style = "color:black;"),
+                    style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"
+                  ),
+                  br(),
+                  tags$div(
+                    onclick = "toggleCollapse4()",
+                    tags$h3(
+                      class = "uk-card-title",
+                      HTML('<b>Second - Fill the table below:</b>'),
+                      shiny::icon("caret-down", style = "float: right;")
+                    ),
+                    HTML("<hr>")
+                  ),
+                  tags$div(id = "collapseDiv4", tags$div(
+                    class = "uk-container",
+                    tags$div(
+                      class = "uk-grid",
+                      tags$div(
+                        class = "uk-width-1-2",
+                        tags$h3(HTML(
+                          '<center><b>Basic Estimates</b></center>'
+                        )),
+                        rHandsontableOutput("editableTable1")
+                      ),
+                      tags$div(
+                        class = "uk-width-1-2",
+                        tags$h3(HTML('<center><b>Consumption</b></center>')),
+                        rHandsontableOutput("editableTable2")
+                      )
+                    ),
+                    tags$div(
+                      class = "uk-grid",
+                      tags$div(class = "uk-width-1-2 uk-flex uk-flex-center", actionButton("addRowBtn1", "Add Row (Table 1)")),
+                      tags$div(class = "uk-width-1-2 uk-flex uk-flex-center", actionButton("addRowBtn2", "Add Row (Table 2)"))
+                    )
+                  ))
+                ),
+                tags$script(
+                  'function toggleCollapse4() {
   var x = document.getElementById("collapseDiv4");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -702,23 +931,77 @@ function toggleCollapse2() {
 '),
 
 
-                                                            br(),
-                                                            tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                     style="margin: 0px; padding: 10px;",
-                                                                     tags$div(
-                                                                       onclick = "toggleCollapse5()",
-                                                                       tags$h3(class="uk-card-title", HTML('<b>Third - Adjust Chart</b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                       HTML("<hr>")),
-                                                                     tags$div(id = "collapseDiv5",
-                                                                              selectInput('ch7',"Choose the Chart Type", choices = c('FoodWeb'='none','Circular'='circular', 'Force'='force')),
+                br(),
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body",
+                  style = "margin: 0px; padding: 10px;",
+                  tags$div(
+                    onclick = "toggleCollapse5()",
+                    tags$h3(
+                      class = "uk-card-title",
+                      HTML('<b>Third - Adjust Chart</b>'),
+                      shiny::icon("caret-down", style = "float: right;")
+                    ),
+                    HTML("<hr>")
+                  ),
+                  tags$div(
+                    id = "collapseDiv5",
+                    selectInput(
+                      'ch7',
+                      "Choose the Chart Type",
+                      choices = c(
+                        'FoodWeb' = 'none',
+                        'Circular' = 'circular',
+                        'Force' = 'force'
+                      )
+                    ),
 
-                                                                              selectInput('ch8',"Choose the chart Theme", choices = c('dark','vintage', 'chalk','dark-blue','dark-bold','dark-digerati','dark-fresh-cut',
-                                                                                                                                      'dark-mushroom','halloween', 'purple-passion',
-                                                                                                                                      'walden','wef','weforum','westeros','wonderland')),
-                                                                              selectInput('ch9',"Nodes Format", choices = c("circle", "square",'roundRect','pin','triangle')),
-                                                                              sliderInput('ch10','Node Size',min=0, max=3, step=0.1, value=2),
-                                                                              sliderInput('fontsize2','Font-Size',min=3, max=30, step=1, value=8))),
-                                                            tags$script('function toggleCollapse5() {
+                    selectInput(
+                      'ch8',
+                      "Choose the chart Theme",
+                      choices = c(
+                        'dark',
+                        'vintage',
+                        'chalk',
+                        'dark-blue',
+                        'dark-bold',
+                        'dark-digerati',
+                        'dark-fresh-cut',
+                        'dark-mushroom',
+                        'halloween',
+                        'purple-passion',
+                        'walden',
+                        'wef',
+                        'weforum',
+                        'westeros',
+                        'wonderland'
+                      )
+                    ),
+                    selectInput(
+                      'ch9',
+                      "Nodes Format",
+                      choices = c("circle", "square", 'roundRect', 'pin', 'triangle')
+                    ),
+                    sliderInput(
+                      'ch10',
+                      'Node Size',
+                      min = 0,
+                      max = 3,
+                      step = 0.1,
+                      value = 2
+                    ),
+                    sliderInput(
+                      'fontsize2',
+                      'Font-Size',
+                      min = 3,
+                      max = 30,
+                      step = 1,
+                      value = 8
+                    )
+                  )
+                ),
+                tags$script(
+                  'function toggleCollapse5() {
   var x = document.getElementById("collapseDiv5");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -729,39 +1012,72 @@ function toggleCollapse2() {
 ')
 
 
-                                           ),
-                                           conditionalPanel(condition = "input.ch5 == 'Generative Chart'",
-                                                            br(),
-                                                            tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                     style="margin: 0px; padding: 10px;",
-                                                                     actionButton(inputId = "help4",
-                                                                                  label = NULL,
-                                                                                  icon = shiny::icon("circle-question", style = "color:black;"),
-                                                                                  style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"),
-                                                                     br(),
-                                                                     tags$div(
-                                                                       onclick = "toggleCollapse6()",
+              ),
+              conditionalPanel(
+                condition = "input.ch5 == 'Generative Chart'",
+                br(),
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body",
+                  style = "margin: 0px; padding: 10px;",
+                  actionButton(
+                    inputId = "help4",
+                    label = NULL,
+                    icon = shiny::icon("circle-question", style = "color:black;"),
+                    style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"
+                  ),
+                  br(),
+                  tags$div(
+                    onclick = "toggleCollapse6()",
 
 
-                                                                       tags$h3(class="uk-card-title", HTML('<b>Second -  Upload Files<b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                       HTML('<hr>')),
-                                                                     tags$div(id = "collapseDiv6",
+                    tags$h3(
+                      class = "uk-card-title",
+                      HTML('<b>Second -  Upload Files<b>'),
+                      shiny::icon("caret-down", style = "float: right;")
+                    ),
+                    HTML('<hr>')
+                  ),
+                  tags$div(
+                    id = "collapseDiv6",
 
-                                                                              p(
-                                                                                HTML('Upload the csv file with a <b>species</b> list.<br>'),
-                                                                                class = 'uk-text-large uk-text-center', style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
-                                                                              ),
-                                                                              div(class = "uk-flex uk-flex-center",
+                    p(
+                      HTML('Upload the csv file with a <b>species</b> list.<br>'),
+                      class = 'uk-text-large uk-text-center',
+                      style = 'font-size: 16px; color: black; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                    ),
+                    div(
+                      class = "uk-flex uk-flex-center",
 
-                                                                                  downloadButton("downloadZipBtn2", "Download Example", class = "small-btn")),
+                      downloadButton("downloadZipBtn2", "Download Example", class = "small-btn")
+                    ),
+                    p(
+                      HTML(
+                        '<b>Caution: AI-generated results may contain uncertainties<br>
+and are meant for exploratory purposes only.<br>
+They should not be relied upon for any decisions<br>
+(management, political, etc.) or as scientific evidence.</b><br><br>
+                                            *Note: All data uploaded will be passed to the<br>
+                                            OpenAI API. By uploading data, you agree with <br>
+                                            OpenAI\'s policy. According to the company documentation,<br>
+                                            no data passed via the API will be used to train any models.<br>
+                                            We recommend users to exercise caution and avoid<br>
+                                    uploading unpublished or sensitive information unless<br>
+                                    they are confident in these assurances.<br>
+                                            For more information, visit: <a href="https://platform.openai.com/docs/models/how-we-use-your-data" target="_blank">OpenAI Data Usage</a>.'
+                      ),
+                      class = 'uk-text-large uk-text-center',
+                      style = 'font-size: 12px; color: red; font-family: "Times New Roman", Times, serif; font-weight: normal;'
+                    ),
 
-                                                                              HTML('<hr>'),
+                    HTML('<hr>'),
 
-                                                                              fileInput("file1_1", "Upload the species list csv file"))),
+                    fileInput("file1_1", "Upload the species list csv file")
+                  )
+                ),
 
 
-                                                            tags$script(
-                                                              'document.getElementById("file2").onchange = function() {
+                tags$script(
+                  'document.getElementById("file2").onchange = function() {
   var x = document.getElementById("collapseDiv6");
   x.style.display = "none";
 };
@@ -774,27 +1090,88 @@ function toggleCollapse6() {
   }
 }
 '),
-                                                            br(),
-                                                            conditionalPanel(
-                                                              condition = "output.filesUploaded2",
-                                                              tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                       style="margin: 0px; padding: 10px;",
-                                                                       tags$div(
-                                                                         onclick = "toggleCollapse7()",
-                                                                         tags$h3(class="uk-card-title", HTML('<b>Third - Adjust Chart</b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                         HTML("<hr>")),
-                                                                       tags$div(id = "collapseDiv7",
-                                                                                selectInput('ch7_1',"Choose the Chart Type", choices = c('FoodWeb'='none','Circular'='circular', 'Force'='force')),
+                br(),
+                conditionalPanel(
+                  condition = "output.filesUploaded2",
+                  tags$div(
+                    class = "uk-card uk-card-default uk-card-body",
+                    style = "margin: 0px; padding: 10px;",
+                    tags$div(
+                      onclick = "toggleCollapse7()",
+                      tags$h3(
+                        class = "uk-card-title",
+                        HTML('<b>Third - Adjust Chart</b>'),
+                        shiny::icon("caret-down", style = "float: right;")
+                      ),
+                      HTML("<hr>")
+                    ),
+                    tags$div(
+                      id = "collapseDiv7",
+                      selectInput(
+                        'ch7_1',
+                        "Choose the Chart Type",
+                        choices = c(
+                          'FoodWeb' = 'none',
+                          'Circular' = 'circular',
+                          'Force' = 'force'
+                        )
+                      ),
 
-                                                                                selectInput('ch8_1',"Choose the chart Theme", choices = c('dark','vintage', 'chalk','dark-blue','dark-bold','dark-digerati','dark-fresh-cut',
-                                                                                                                                          'dark-mushroom','halloween', 'purple-passion',
-                                                                                                                                          'walden','wef','weforum','westeros','wonderland')),
-                                                                                selectInput('ch9_1',"Nodes Format", choices = c("circle", "square",'roundRect','pin','triangle')),
-                                                                                sliderInput('ch10_1','Node Size',min=0, max=3, step=0.1, value=0.6),
-                                                                                sliderInput('fontsize3','Font-Size',min=3, max=30, step=1, value=8),
-                                                                                sliderInput('ch20_1','Zoom',min=0, max=3, step=0.2, value=2),
-                                                                       ))),
-                                                            tags$script('function toggleCollapse7() {
+                      selectInput(
+                        'ch8_1',
+                        "Choose the chart Theme",
+                        choices = c(
+                          'dark',
+                          'vintage',
+                          'chalk',
+                          'dark-blue',
+                          'dark-bold',
+                          'dark-digerati',
+                          'dark-fresh-cut',
+                          'dark-mushroom',
+                          'halloween',
+                          'purple-passion',
+                          'walden',
+                          'wef',
+                          'weforum',
+                          'westeros',
+                          'wonderland'
+                        )
+                      ),
+                      selectInput(
+                        'ch9_1',
+                        "Nodes Format",
+                        choices = c("circle", "square", 'roundRect', 'pin', 'triangle')
+                      ),
+                      sliderInput(
+                        'ch10_1',
+                        'Node Size',
+                        min = 0,
+                        max = 3,
+                        step = 0.1,
+                        value = 0.6
+                      ),
+                      sliderInput(
+                        'fontsize3',
+                        'Font-Size',
+                        min = 3,
+                        max = 30,
+                        step = 1,
+                        value = 8
+                      ),
+                      sliderInput(
+                        'ch20_1',
+                        'Zoom',
+                        min = 0,
+                        max = 3,
+                        step = 0.2,
+                        value = 2
+                      ),
+                    )
+                  )
+                ),
+                tags$script(
+                  'function toggleCollapse7() {
   var x = document.getElementById("collapseDiv7");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -805,38 +1182,62 @@ function toggleCollapse6() {
 '),
 
 
-                                                            conditionalPanel(
-                                                              condition = "output.filesUploaded2",
-                                                              br(),
-                                                              tags$div(class="uk-card uk-card-default uk-card-body",
-                                                                       style="margin: 0px; padding: 10px; overflow-y: auto;",
-                                                                       shiny::icon("circle-question", style = "float: right;"),
-                                                                       br(),
-                                                                       tags$div(id = 'fourth2', class = 'action-button',
-                                                                                onclick = "toggleCollapse4_1()",
-                                                                                tags$h3(class="uk-card-title", HTML('<b>Fourth - Look and Review your data:</b>'),shiny::icon("caret-down", style = "float: right;")),
-                                                                                HTML("<hr>")),
-                                                                       conditionalPanel(condition = 'input.fourth2 > 0',
-                                                                                        tags$div(id = "collapseDiv4_1",
-                                                                                                 style="display: none;",
-                                                                                                 tags$div(
-                                                                                                   class = "uk-container",
-                                                                                                   tags$div(
-                                                                                                     class = "uk-grid",
-                                                                                                     tags$div(class="uk-width-1-2",
-                                                                                                              tags$h3(HTML('<center><b>Basic Estimates</b></center>')),
-                                                                                                              rHandsontableOutput("editableTable5")
-                                                                                                     ),
-                                                                                                     tags$div(class="uk-width-1-2",
-                                                                                                              tags$h3(HTML('<center><b>Consumption</b></center>')),
-                                                                                                              rHandsontableOutput("editableTable6")
-                                                                                                     )
-                                                                                                   ),
+                conditionalPanel(
+                  condition = "output.filesUploaded2",
+                  br(),
+                  tags$div(
+                    class = "uk-card uk-card-default uk-card-body",
+                    style = "margin: 0px; padding: 10px; overflow-y: auto;",
+                    shiny::icon("circle-question", style = "float: right;"),
+                    br(),
+                    tags$div(
+                      id = 'fourth2',
+                      class = 'action-button',
+                      onclick = "toggleCollapse4_1()",
+                      tags$h3(
+                        class = "uk-card-title",
+                        HTML('<b>Fourth - Look and Review your data:</b>'),
+                        shiny::icon("caret-down", style = "float: right;")
+                      ),
+                      HTML("<hr>")
+                    ),
+                    conditionalPanel(
+                      condition = 'input.fourth2 > 0',
+                      tags$div(
+                        id = "collapseDiv4_1",
+                        style = "display: none;",
+                        tags$div(
+                          class = "uk-container",
+                          tags$div(
+                            class = "uk-flex uk-flex-between uk-flex-middle",
+                            tags$div(class = "uk-width-expand"),
+                            downloadBttn("dwntable1", label = "", color = "warning")
+                          )
+                        ),
+                        tags$div(class = "uk-container", tags$div(
+                          class = "uk-grid",
+                          tags$div(
+                            class = "uk-width-1-2",
+                            tags$h3(HTML(
+                              '<center><b>Basic Estimates</b></center>'
+                            )),
+                            rHandsontableOutput("editableTable5")
+                          ),
+                          tags$div(
+                            class = "uk-width-1-2",
+                            tags$h3(HTML('<center><b>Consumption</b></center>')),
+                            rHandsontableOutput("editableTable6")
+                          )
+                        ), )
 
-                                                                                                 )))
 
-                                                              )),
-                                                            tags$script('function toggleCollapse4_1() {
+                      )
+                    )
+
+                  )
+                ),
+                tags$script(
+                  'function toggleCollapse4_1() {
   var x = document.getElementById("collapseDiv4_1");
   if (x.style.display === "none") {
     x.style.display = "block";
@@ -849,33 +1250,37 @@ function toggleCollapse6() {
 
 
 
-                                                            ###
+                ###
 
 
-                                           )
-                                         ),
-                                         hidden(absolutePanel(
-                                           id = "help1_panel",
-                                           class = "panel panel-default",
-                                           fixed = FALSE,
-                                           draggable = TRUE,
-                                           top = 510,
-                                           left = 'auto',
-                                           right = "20%",
-                                           bottom = "auto",
-                                           width = "50%",
-                                           height = "auto",
-                                           style = "z-index: 1000; padding: 10px 10px 10px 10px; display:none;",
+              )
+            ),
+            hidden(
+              absolutePanel(
+                id = "help1_panel",
+                class = "panel panel-default",
+                fixed = FALSE,
+                draggable = TRUE,
+                top = 510,
+                left = 'auto',
+                right = "20%",
+                bottom = "auto",
+                width = "50%",
+                height = "auto",
+                style = "z-index: 1000; padding: 10px 10px 10px 10px; display:none;",
 
-                                           tags$div(
-                                             class = "uk-card uk-card-default uk-card-body",
-                                             style = "margin: 0px; padding: 20px;font-weight: normal; color: black;",
-                                             actionButton(inputId = "help1_1",
-                                                          label = NULL,
-                                                          icon = shiny::icon("xmark", style = "color:black;"),
-                                                          style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"),
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body",
+                  style = "margin: 0px; padding: 20px;font-weight: normal; color: black;",
+                  actionButton(
+                    inputId = "help1_1",
+                    label = NULL,
+                    icon = shiny::icon("xmark", style = "color:black;"),
+                    style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"
+                  ),
 
-                                             HTML("
+                  HTML(
+                    "
   <p style='font-size: 18px; color: black;'><b>Help Menu</b></p><br>
 <p>The app allows users to work with four types of data:</p>
 <ul>
@@ -887,49 +1292,61 @@ function toggleCollapse6() {
 
 
 
-    "))
+    "
+                  )
+                )
 
-                                         )),
-                                         hidden(absolutePanel(
-                                           id = "help2_panel",
-                                           class = "panel panel-default",
-                                           fixed = FALSE,
-                                           draggable = TRUE,
-                                           top = 510,
-                                           left = 'auto',
-                                           right = "20%",
-                                           bottom = "auto",
-                                           width = "50%",
-                                           height = "auto",
-                                           style = "z-index: 1000; padding: 10px 10px 10px 10px; display:none;",
+              )
+            ),
+            hidden(
+              absolutePanel(
+                id = "help2_panel",
+                class = "panel panel-default",
+                fixed = FALSE,
+                draggable = TRUE,
+                top = 510,
+                left = 'auto',
+                right = "20%",
+                bottom = "auto",
+                width = "50%",
+                height = "auto",
+                style = "z-index: 1000; padding: 10px 10px 10px 10px; display:none;",
 
-                                           tags$div(
-                                             class = "uk-card uk-card-default uk-card-body",
-                                             style = "margin: 0px; padding: 20px;font-weight: normal; color: black;",
-                                             actionButton(inputId = "help2_2",
-                                                          label = NULL,
-                                                          icon = shiny::icon("xmark", style = "color:black;"),
-                                                          style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"),
-                                             conditionalPanel(condition = "input.ch5 == 'Ecopath'",
-                                                              HTML("
+                tags$div(
+                  class = "uk-card uk-card-default uk-card-body",
+                  style = "margin: 0px; padding: 20px;font-weight: normal; color: black;",
+                  actionButton(
+                    inputId = "help2_2",
+                    label = NULL,
+                    icon = shiny::icon("xmark", style = "color:black;"),
+                    style = "float: right; margin: 0px; padding: 0px; background-color: transparent; border:none;"
+                  ),
+                  conditionalPanel(
+                    condition = "input.ch5 == 'Ecopath'",
+                    HTML(
+                      "
  <div style='font-size: 18px; color: black; text-align: center;'><b>Help Menu</b></div><br>
 <div style='text-align: justify; margin: 0 auto; max-width: 600px;'>
     <p>In the Ecopath module, the app works with two tables exported directly from the program: basic estimates (Figure A-1) and consumption (Figure B-1). These tables can be exported in CSV format by clicking on the top-right button highlighted in red (Figure A-2 and B-2).</p>
 
     <div style='text-align: center;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure A: Exporting the Basic Estimates table from Ecopath software</p>
-        <img src='assets/IMG_1367.jpeg' alt='Basic Estimates' style='max-width: 100%; border-radius: 5px;'>
+        <img src='IMG_1367.jpeg' alt='Basic Estimates' style='max-width: 100%; border-radius: 5px;'>
     </div>
 
     <div style='text-align: center; margin-top: 20px;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure B: Exporting the consumption table from Ecopath software</p>
-        <img src='assets/IMG_1368.jpeg' alt='Consumption' style='max-width: 100%; border-radius: 5px;'>
+        <img src='IMG_1368.jpeg' alt='Consumption' style='max-width: 100%; border-radius: 5px;'>
     </div>
 </div>
-    ")),
+    "
+                    )
+                  ),
 
-                                             conditionalPanel(condition = "input.ch5 == 'Regular'",
-                                                              HTML("
+                  conditionalPanel(
+                    condition = "input.ch5 == 'Regular'",
+                    HTML(
+                      "
 
          <div style='font-size: 18px; color: black; text-align: center;'><b>Help Menu</b></div><br>
 <div style='text-align: justify; margin: 0 auto; max-width: 600px;'>
@@ -937,20 +1354,24 @@ function toggleCollapse6() {
 
     <div style='text-align: center;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure A: Exporting the Basic Estimates table from Excel</p>
-        <img src='assets/IMG_1361.jpeg' alt='Basic Estimates' style='width:200px;height:300px; border-radius: 5px;'>
+        <img src='IMG_1361.jpeg' alt='Basic Estimates' style='width:200px;height:300px; border-radius: 5px;'>
     </div>
 
     <div style='text-align: center; margin-top: 20px;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure B: Exporting the consumption table from Excel</p>
-        <img src='assets/IMG_1362.jpeg' alt='Consumption' style='width:200px;height:300px; border-radius: 5px;'>
+        <img src='IMG_1362.jpeg' alt='Consumption' style='width:200px;height:300px; border-radius: 5px;'>
     </div>
 </div>
 
 
-    ")),
+    "
+                    )
+                  ),
 
-                                             conditionalPanel(condition = "input.ch5 == 'Generative Chart'",
-                                                              HTML("
+                  conditionalPanel(
+                    condition = "input.ch5 == 'Generative Chart'",
+                    HTML(
+                      "
 
        <div style='font-size: 18px; color: black; text-align: center;'><b>Help Menu</b></div><br>
 <div style='text-align: justify; margin: 0 auto; max-width: 600px;'>
@@ -958,16 +1379,20 @@ function toggleCollapse6() {
 
     <div style='text-align: center;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure A: Example input file for the A.I. Foodweb module</p>
-        <img src='assets/IMG_1369.jpeg' alt='Input File Example' style='width:200px; height:600px; border-radius: 5px;'>
+        <img src='IMG_1369.jpeg' alt='Input File Example' style='width:200px; height:600px; border-radius: 5px;'>
     </div>
 
 </div>
 
 
-    ")),
+    "
+                    )
+                  ),
 
-                                             conditionalPanel(condition = "input.ch5 == 'Free'",
-                                                              HTML("
+                  conditionalPanel(
+                    condition = "input.ch5 == 'Free'",
+                    HTML(
+                      "
 
        <div style='font-size: 18px; color: black; text-align: center;'><b>Help Menu</b></div><br>
 <div style='text-align: justify; margin: 0 auto; max-width: 600px;'>
@@ -977,50 +1402,274 @@ function toggleCollapse6() {
 </div>
 
 
-    "))
-
-
-
-
-                                           )
-
-                                         )),
-
-
-                                         conditionalPanel(condition = "input.ch5 == 'Ecopath'",
-                                                          uiOutput('ui1')),
-                                         conditionalPanel(condition = "input.ch5 == 'Regular'",
-                                                          uiOutput('ui1R')),
-                                         conditionalPanel(condition = "input.ch5 == 'Free'",
-                                                          uiOutput('ui2')),
-                                         conditionalPanel(condition = "input.ch5 == 'Generative Chart'",
-                                                          uiOutput('ui3')),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-                                         br(),
-
-
-
-
-
-
-
-                        )),
-                      tags$li(
-
-                       br()
-
-
-                      )
-
+    "
                     )
+                  )
+
+
+
+
+                )
+
+              )
+            ),
+
+
+            conditionalPanel(condition = "input.ch5 == 'Ecopath'", uiOutput('ui1')),
+            conditionalPanel(condition = "input.ch5 == 'Regular'", uiOutput('ui1R')),
+            conditionalPanel(condition = "input.ch5 == 'Free'", uiOutput('ui2')),
+            conditionalPanel(condition = "input.ch5 == 'Generative Chart'", uiOutput('ui3')),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+            br(),
+
+
+
+
+
+
+
+          )
+        ),
+        tags$div(
+          br(),
+          tags$ul(
+            class = "uk-flex-left uk-tab uk-margin-remove white",
+            `uk-switcher` = 'animation: uk-animation-slide-left-medium, uk-animation-slide-right-medium',
+            tags$li(
+              id = "aqui6",
+              class = 'action-button uk-active',  # Combined class names
+              tags$a(
+                id = 'aqui6',
+                class = 'action-button',
+                HTML("<p style='font-size: 14px; color: white;'>Authors</p>")
+              )
+            ),
+            tags$li(
+              id = 'aqui7',
+              class = 'action-button',  # Only one class attribute
+              tags$a(
+                id = 'aqui7',
+                class = 'action-button',
+                HTML("<p style='font-size: 14px; color: white;'>License and Privacy</p>")
+              )
+            )
+          ),
+
+          tags$div(
+            class = 'uk-switcher uk-margin-remove',
+            tags$div(
+              br(),
+              p("Authors information"),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br()
+            ),
+
+
+            tags$div(
+              br(),
+              HTML(
+                "<p style= 'font-size: 20px;'><b>GPLv3 License</b></p>
+      <p>This application is licensed under the GNU General Public License v3.0 (GPLv3). You may copy, distribute, and modify this software as long as you track changes/dates in source files. Any modifications to this software must also be made available under the GPL along with build and install instructions.</p>
+      <p>For more details, please refer to the <a href='https://www.gnu.org/licenses/gpl-3.0.en.html' target='_blank'>GNU General Public License v3.0</a>.</p>
+
+      <br><br>
+      <p style= 'font-size: 20px;'>Privacy Policy</p>
+      <p>At <strong>FoodWebAI</strong>, we are committed to the responsible use of AI in accordance with established guidelines, ensuring that your data is handled with care, transparency, and respect for your privacy and intellectual property rights.</p>
+
+      <br>
+      <p style= 'font-size: 20px;'>1. Data Privacy and Confidentiality</p>
+<p>We take your privacy seriously. Our app does not store or retain the data you upload beyond what is necessary for processing through the OpenAI API. However, users should be aware that any data shared with AI tools could potentially be reused for other purposes unless explicitly stated otherwise by the service provider. As such, we recommend that you protect any unpublished or sensitive work and refrain from uploading it into the app unless necessary precautions are taken.</p>
+
+<p style= 'font-size: 20px;'>2. Third Party Data Processing</p>
+<p>When you use our application, any data you upload (including text, data, prompts, and images) will be processed by the OpenAI API. While OpenAI’s policy ensures that your data will not be used to train future models, we advise users to avoid uploading unpublished, sensitive, or confidential information unless you are confident in these assurances.</p>
+<p>For more information on how your data is handled by OpenAI, please review their <a href='https://platform.openai.com/docs/models/how-we-use-your-data' target='_blank'>Data Usage Policy</a>.</p>
+
+<p style= 'font-size: 20px;'>3. Purpose and Limitations of AI-Generated Results</p>
+<p>The results generated by our app are intended for exploratory purposes only and may contain uncertainties. These results should not be relied upon for critical decisions, including management or political decisions, and should not be used as scientific evidence. We strongly encourage users to verify and cross-check all results with appropriate expertise before making any decisions based on them.</p>
+
+<p style= 'font-size: 20px;'>4. Transparency and Disclosure</p>
+<p>We are transparent about the fact that your data is processed by OpenAI’s GPT-3.5 API. This disclosure is crucial for informed decision-making about how you interact with the app. We encourage you to familiarize yourself with OpenAI’s privacy practices by reviewing their <a href='https://openai.com/policies/privacy-policy/' target='_blank'>Privacy Policy</a>.</p>
+
+<p style= 'font-size: 20px;'>5. Addressing AI’s Stochastic Nature</p>
+<p>AI models can produce different outputs from the same input due to their stochastic nature. To mitigate this, our app performs additional tests and runs the model multiple times to assess the consistency of the results. Nevertheless, users should remain aware of this variability and treat the results accordingly.</p>
+
+<p style= 'font-size: 20px;'>6. Updates to This Policy</p>
+<p>We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will notify you of any significant changes by posting the new policy on this page.</p>
+
+<p style= 'font-size: 20px;'>Contact Us</p>
+<p>If you have any questions about this Privacy Policy or our practices, please contact us at <strong>contact information</strong>.</p>"
+              ),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br()
+
+
+            )))
+
+
+      )
 
 
 
