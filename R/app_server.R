@@ -5,8 +5,7 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  api_key <- golem::get_golem_options("api_key")
-  Sys.setenv(OPENAI_API_KEY = api_key)
+  print(paste("SERVER sees key:", nchar(Sys.getenv("OPENAI_API_KEY"))))
 
   observeEvent(input$help1, {
     toggle('help1_panel')
