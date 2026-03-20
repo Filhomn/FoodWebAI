@@ -9,6 +9,8 @@ app_server <- function(input, output, session) {
   
   # Set BEFORE any ellmer function is called
   Sys.setenv(OPENAI_API_KEY = api_key)
+  message("Key set: ", nchar(Sys.getenv("OPENAI_API_KEY")) > 0)
+  message("Ellmer key: ", nchar(ellmer:::get_api_key("openai")) > 0)
   observeEvent(input$help1, {
     toggle('help1_panel')
   })
