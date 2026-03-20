@@ -7,7 +7,6 @@
 #' @export
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options
-
 run_app <- function(
     api_key,
     onStart = NULL,
@@ -16,15 +15,16 @@ run_app <- function(
     uiPattern = "/",
     ...
 ) {
+
+  # ✅ SET KEY HERE (not inside onStart)
+  Sys.setenv(OPENAI_API_KEY = api_key)
+
+  message("Key set before app launch: ", nchar(Sys.getenv("OPENAI_API_KEY")) > 0)
+
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
       server = app_server,
-      onStart = function() {
-        # This fires ONCE before any session starts
-        Sys.setenv(OPENAI_API_KEY = api_key)
-        message("Key set in onStart: ", nchar(Sys.getenv("OPENAI_API_KEY")) > 0)
-      },
       options = options,
       enableBookmarking = enableBookmarking,
       uiPattern = uiPattern
