@@ -1353,7 +1353,7 @@ function toggleCollapse6() {
 
     <div style='text-align: center; margin-top: 20px;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure B: Exporting the consumption table from Ecopath software</p>
-        <img src='IMG_1368.jpeg' alt='Consumption' style='max-width: 100%; border-radius: 5px;'>
+        <img src='www/assets/IMG_1368.jpeg' alt='Consumption' style='max-width: 100%; border-radius: 5px;'>
     </div>
 </div>
     "
@@ -1371,12 +1371,12 @@ function toggleCollapse6() {
 
     <div style='text-align: center;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure A: Exporting the Basic Estimates table from Excel</p>
-        <img src='IMG_1361.jpeg' alt='Basic Estimates' style='width:200px;height:300px; border-radius: 5px;'>
+        <img src='www/assets/IMG_1361.jpeg' alt='Basic Estimates' style='width:200px;height:300px; border-radius: 5px;'>
     </div>
 
     <div style='text-align: center; margin-top: 20px;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure B: Exporting the consumption table from Excel</p>
-        <img src='IMG_1362.jpeg' alt='Consumption' style='width:200px;height:300px; border-radius: 5px;'>
+        <img src='www/assets/IMG_1362.jpeg' alt='Consumption' style='width:200px;height:300px; border-radius: 5px;'>
     </div>
 </div>
 
@@ -1396,7 +1396,7 @@ function toggleCollapse6() {
 
     <div style='text-align: center;'>
         <p style='font-weight: bold; margin-bottom: 5px;'>Figure A: Example input file for the A.I. Foodweb module</p>
-        <img src='IMG_1369.jpeg' alt='Input File Example' style='width:200px; height:600px; border-radius: 5px;'>
+        <img src='www/assets/IMG_1369.jpeg' alt='Input File Example' style='width:200px; height:600px; border-radius: 5px;'>
     </div>
 
 </div>
