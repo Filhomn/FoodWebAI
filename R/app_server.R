@@ -7,7 +7,7 @@
 app_server <- function(input, output, session) {
   print(paste("SERVER sees key:", nchar(Sys.getenv("OPENAI_API_KEY"))))
 
-  chat <- ellmer::chat_openai(model = "gpt-4.1-mini")
+  chat <- ellmer::chat_openai(model = "gpt-4.1-mini", api_key = golem::get_golem_options("api_key"))
 chat$chat("Hello")
 
   observeEvent(input$help1, {
