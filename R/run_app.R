@@ -15,16 +15,11 @@ run_app <- function(
     uiPattern = "/",
     ...
 ) {
-
-  # ✅ SET KEY HERE (not inside onStart)
-  Sys.setenv(OPENAI_API_KEY = api_key)
-
-  message("Key set before app launch: ", nchar(Sys.getenv("OPENAI_API_KEY")) > 0)
-
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
       server = app_server,
+      onStart = onStart,
       options = options,
       enableBookmarking = enableBookmarking,
       uiPattern = uiPattern
