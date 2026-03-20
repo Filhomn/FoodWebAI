@@ -5,21 +5,10 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  app_server <- function(input, output, session) {
+  cat("SERVER STARTED\n")
   
   api_key <- golem::get_golem_options("api_key")
-  
-  chat <- tryCatch({
-    ellmer::chat_openai(api_key = api_key, model = "gpt-4o")
-  }, error = function(e) {
-    message("ERROR: ", e$message)
-    NULL
-  })
-  
-  message("chat created: ", !is.null(chat))
-  message("test response: ", tryCatch(chat$chat("say test"), error = function(e) e$message))
-  
-}
+  cat("KEY:", api_key, "\n")
   
   observeEvent(input$help1, {
     toggle('help1_panel')
