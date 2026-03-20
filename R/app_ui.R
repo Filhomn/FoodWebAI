@@ -1635,7 +1635,7 @@ function toggleCollapse6() {
         <header class='uk-comment-header'>
             <div class='uk-grid-medium uk-flex-middle' uk-grid>
                 <div class='uk-width-auto'>
-                    <img class='uk-comment-avatar' src='4.png' width='100' height='100' alt=''>
+                    <img class='uk-comment-avatar' src='www/4.png' width='100' height='100' alt=''>
                 </div>
                 <div class='uk-width-expand'>
                     <h4 class='uk-comment-title uk-margin-remove'><a class='uk-link-reset' href='#'>Dr. Noleto-Filho, Eurico</a></h4>
@@ -1654,7 +1654,7 @@ function toggleCollapse6() {
         <header class='uk-comment-header'>
             <div class='uk-grid-medium uk-flex-middle' uk-grid>
                 <div class='uk-width-auto'>
-                    <img class='uk-comment-avatar' src='5.png' width='95' height='95' alt=''>
+                    <img class='uk-comment-avatar' src='www/5.png' width='95' height='95' alt=''>
                 </div>
                 <div class='uk-width-expand'>
                     <h4 class='uk-comment-title uk-margin-remove'><a class='uk-link-reset' href='#'>Dr. Ronaldo Angelini</a></h4>
@@ -1673,7 +1673,7 @@ function toggleCollapse6() {
         <header class='uk-comment-header'>
             <div class='uk-grid-medium uk-flex-middle' uk-grid>
                 <div class='uk-width-auto'>
-                    <img class='uk-comment-avatar' src='1.png' width='100' height='100' alt=''>
+                    <img class='uk-comment-avatar' src='www/1.png' width='100' height='100' alt=''>
                 </div>
                 <div class='uk-width-expand'>
                     <h4 class='uk-comment-title uk-margin-remove'><a class='uk-link-reset' href='#'>Dr. Tommaso Giarrizzo</a></h4>
@@ -1724,7 +1724,7 @@ function toggleCollapse6() {
         <header class='uk-comment-header'>
             <div class='uk-grid-medium uk-flex-middle' uk-grid>
                 <div class='uk-width-auto'>
-                    <img class='uk-comment-avatar' src='IMG_7964.png' width='100' height='100' alt=''>
+                    <img class='uk-comment-avatar' src='www/IMG_7964.png' width='100' height='100' alt=''>
                 </div>
                 <div class='uk-width-expand'>
                     <h4 class='uk-comment-title uk-margin-remove'><a class='uk-link-reset' href='#'>Dr. Friedrich Keppeler</a></h4>
@@ -1743,7 +1743,7 @@ function toggleCollapse6() {
         <header class='uk-comment-header'>
             <div class='uk-grid-medium uk-flex-middle' uk-grid>
                 <div class='uk-width-auto'>
-                    <img class='uk-comment-avatar' src='IMG_7963.png' width='100' height='100' alt=''>
+                    <img class='uk-comment-avatar' src='www/IMG_7963.png' width='100' height='100' alt=''>
                 </div>
                 <div class='uk-width-expand'>
                     <h4 class='uk-comment-title uk-margin-remove'><a class='uk-link-reset' href='#'>Dr. José Amorim Reis-Filho</a></h4>
