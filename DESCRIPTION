@@ -13,7 +13,8 @@ Imports:
     golem (>= 0.4.1),
     shiny (>= 1.7.5)
 Remotes:
-    ben-aaron188/rgpt3@v.0.4
+    ben-aaron188/rgpt3@v.0.4,
+    ericrayanderson/shinymaterial
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
