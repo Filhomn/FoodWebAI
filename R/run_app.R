@@ -16,8 +16,7 @@ run_app <- function(
     ...
 ) {
   # Write the api_key to a file
-  writeLines(api_key, "Key.txt")
-  gpt3_authenticate("Key.txt")
+
   Sys.setenv(OPENAI_API_KEY = api_key)
   with_golem_options(
     app = shinyApp(
