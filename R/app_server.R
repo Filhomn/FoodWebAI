@@ -7,6 +7,16 @@
 app_server <- function(input, output, session) {
   print(paste("SERVER sees key:", nchar(Sys.getenv("OPENAI_API_KEY"))))
 
+  res <- tryCatch({
+  chat <- ellmer::chat_openai(model = "gpt-4.1-mini")
+  chat$chat("Say hello")
+}, error = function(e) {
+  print(e)
+  return(NULL)
+})
+
+print(res)
+
   observeEvent(input$help1, {
     toggle('help1_panel')
   })
