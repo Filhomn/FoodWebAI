@@ -5,31 +5,6 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  cat("1. SERVER STARTED\n")
-  
-  api_key <- golem::get_golem_options("api_key")
-  cat("2. KEY received:", nchar(api_key) > 0, "\n")
-  cat("3. KEY length:", nchar(api_key), "\n")
-  cat("4. OPENAI env var:", Sys.getenv("OPENAI_API_KEY") != "", "\n")
-  
-  chat <- tryCatch({
-    ellmer::chat_openai(api_key = api_key, model = "gpt-5.4")
-  }, error = function(e) {
-    cat("5. CHAT ERROR:", e$message, "\n")
-    NULL
-  })
-  
-  cat("5. CHAT created:", !is.null(chat), "\n")
-  
-  result <- tryCatch({
-    chat$chat("say the word test 3 times...")
-  }, error = function(e) {
-    cat("6. API ERROR:", e$message, "\n")
-    NULL
-  })
-  
-  cat("6. API response:", !is.null(result), "\n")
-  cat("7. Response text:", result, "\n")
   
   observeEvent(input$help1, {
     toggle('help1_panel')
@@ -267,6 +242,7 @@ app_server <- function(input, output, session) {
     gw2 = data.frame(name = unique(c(gw$species, gw$category)))
     gw2$name = trimws(gw2$name)
     gw2$t_level <- trimws(sapply(gw2$name, classify_gen2))
+    cat(gw2$t_level)
     gw2$size = rep(20, length(gw2$name))
     gw2$value = rep(1, length(gw2$name))
     removeModal()
