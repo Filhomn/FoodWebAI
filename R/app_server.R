@@ -5,10 +5,27 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  print(paste("SERVER sees key:", nchar(Sys.getenv("OPENAI_API_KEY"))))
-
-  chat <- ellmer::chat_openai(model = "gpt-4.1-mini", api_key = golem::get_golem_options("api_key"))
-chat$chat("Hello")
+ chat <- reactive({
+    ellmer::chat_openai(
+      system_prompt = "your prompt here",
+      api_key = golem::get_golem_options("api_key"),
+      model = "gpt-4o"
+    )
+  })
+  
+  result <- reactive({
+    req(input$something)  # whatever triggers the call
+    chat()$chat("your message here")
+  })
+  
+  output$my_chart3 <- renderEcharts4r({
+    req(result())
+    
+    data <- result()
+    if (is.null(data) || length(data) == 0) return(NULL)
+    
+    data |> e_charts(...)
+  })
 
   observeEvent(input$help1, {
     toggle('help1_panel')
