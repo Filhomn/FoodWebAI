@@ -15,9 +15,17 @@ run_app <- function(
     uiPattern = "/",
     ...
 ) {
-  # Write the api_key to a file
+  # Write the API key to .Renviron
+  renviron_path <- file.path(Sys.getenv("HOME"), ".Renviron")
+  
+  # Read existing .Renviron if it exists, filter out old key, append new one
+  existing <- if (file.exists(renviron_path)) readLines(renviron_path) else character(0)
+  existing <- existing[!grepl("^OPENAI_API_KEY=", existing)]
+  writeLines(c(existing, paste0("OPENAI_API_KEY=", api_key)), renviron_path)
+  
+  # Reload .Renviron so the current session picks it up immediately
+  readRenviron(renviron_path)
 
-  Sys.setenv(OPENAI_API_KEY = api_key)
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
