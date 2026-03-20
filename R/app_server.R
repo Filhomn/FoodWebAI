@@ -13,7 +13,7 @@ app_server <- function(input, output, session) {
   cat("4. OPENAI env var:", Sys.getenv("OPENAI_API_KEY") != "", "\n")
   
   chat <- tryCatch({
-    ellmer::chat_openai(api_key = api_key, model = "gpt-4o")
+    ellmer::chat_openai(api_key = api_key, model = "gpt-5.4")
   }, error = function(e) {
     cat("5. CHAT ERROR:", e$message, "\n")
     NULL
@@ -22,7 +22,7 @@ app_server <- function(input, output, session) {
   cat("5. CHAT created:", !is.null(chat), "\n")
   
   result <- tryCatch({
-    chat$chat("say the word test")
+    chat$chat("say the word test 3 times...")
   }, error = function(e) {
     cat("6. API ERROR:", e$message, "\n")
     NULL
