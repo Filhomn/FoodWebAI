@@ -185,7 +185,7 @@ app_server <- function(input, output, session) {
         chat <- ellmer::chat_openai(
           model = input$md1,
           system_prompt = NULL,
-          api_args = list(temperature = 0.4, max_completion_tokens = 4)
+          api_args = list(temperature = 0.4, max_completion_tokens = 10)
         )
 
         t_level <- chat$chat(prompt)
