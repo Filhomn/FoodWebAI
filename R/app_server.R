@@ -231,7 +231,9 @@ app_server <- function(input, output, session) {
       easyClose = FALSE
     ))
     gw$category <- sapply(gw$species, classify_gen) %>% tolower()
+    cat(gw$category)
     gw$category2 <- sapply(gw$species, classify_gen3) %>% tolower()
+    cat(gw$category2)
     gw = gw %>% gather("a", "category", 2:3)
     gw$species2 <- ifelse(gw$a == "category", gw$species, gw$category)
     gw$category2 <- ifelse(gw$a == "category", gw$category, gw$species)
