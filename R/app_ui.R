@@ -101,7 +101,7 @@ app_ui <- function(request) {
       tags$head(
         tags$link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/twemoji@13.0.1/2/twemoji-awesome.css")
       ),
-      tags$head(tags$link(rel = "stylesheet", href = "https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/css/uikit.min.css")),
+      tags$head(tags$link(rel = "stylesheet", href = "uikit.min.css")),
       tags$head(
         tags$script(src = "https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit.min.js")
       ),
