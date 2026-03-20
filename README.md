@@ -9,7 +9,7 @@ Food webs depict the intricate connections between organisms in ecosystems, vita
 ### Key Features
 
 -   **Creating entire new Food Webs from a list of species**: The application can recreate food webs from taxa lists, verifying accuracy by comparing the results to known or accepted values.
--   **Augmenting pre defined Food Webs with metadata**: FoodWebAI utilizes OpenAI’s GPT-3.5-Turbo model via the rpgt3 package in R to complement species lists with additional properties, such as species type (e.g., fish, bird, invertebrate, mammal, primary producer, and detritus), species behavior, habitat, International Union for Conservation of Nature (IUCN) conservation status and others
+-   **Augmenting pre defined Food Webs with metadata**: FoodWebAI utilizes OpenAI’s GPT-3.5-Turbo, GPT-5.2, GPT 5.4 and GPT 5.4-nano models via the ellmer package in R to complement species lists with additional properties, such as species type (e.g., fish, bird, invertebrate, mammal, primary producer, and detritus), species behavior, habitat, International Union for Conservation of Nature (IUCN) conservation status and others
 
 ### Performance
 
