@@ -144,7 +144,7 @@ app_server <- function(input, output, session) {
           "\n\nRespond with only the predator name, nothing else. Predator:"
         )
 
-        chat <- chat_openai(
+        chat <- ellmer::chat_openai(
           model = input$md1,
           system_prompt = NULL,
           api_args = list(temperature = 0.1, max_completion_tokens = 10)
@@ -163,7 +163,7 @@ app_server <- function(input, output, session) {
           "\n\nRespond with only the predator name, nothing else. Prey:"
         )
 
-        chat <- chat_openai(
+        chat <- ellmer::chat_openai(
           model = input$md1,
           system_prompt = NULL,
           api_args = list(temperature = 0.1, max_completion_tokens = 10)
@@ -184,7 +184,7 @@ app_server <- function(input, output, session) {
           "\n\nRespond with only one number. Trophic Position:"
         )
 
-        chat <- chat_openai(
+        chat <- ellmer::chat_openai(
           model = input$md1,
           system_prompt = NULL,
           api_args = list(temperature = 0.4, max_completion_tokens = 4)
